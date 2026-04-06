@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="clock-container">
+        <div class="bg-glow"></div>
+        <div id="time" title="Click for Settings">00:00:00</div>
+
+        <div id="fade-controls">
+            <div class="toggle-wrapper">
+                <span>12h</span>
+                <label class="switch">
+                    <input type="checkbox" id="format-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span>24h</span>
+            </div>
+            
+            <div class="toggle-wrapper">
+                <span>Hide Sec</span>
+                <label class="switch">
+                    <input type="checkbox" id="seconds-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+                <span>Show Sec</span>
+            </div>
+            
+            <div class="toggle-wrapper">
+                <span>Static</span>
+                <label class="switch">
+                    <input type="checkbox" id="pulse-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+                <span>Pulse Glow</span>
+            </div>
+            
+            <div class="controls">
+                <div class="size-selector">
+                    <label class="size-circle">
+                        <input type="radio" name="size-option" value="4rem">
+                        <span class="checkmark">S</span>
+                    </label>
+                    <label class="size-circle">
+                        <input type="radio" name="size-option" value="8rem">
+                        <span class="checkmark">M</span>
+                    </label>
+                    <label class="size-circle">
+                        <input type="radio" name="size-option" value="12rem">
+                        <span class="checkmark">L</span>
+                    </label>
+                    <label class="size-circle">
+                        <input type="radio" name="size-option" value="16rem">
+                        <span class="checkmark">XL</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="clock-settings" style="display: none;">
+        <div id="settings-header">⠿ DRAG TO MOVE</div>
+        
+        <div class="setting-row">
+            <span>Color:</span>
+            <div id="color-preview" style="position: relative;">
+                <input type="color" id="color-picker">
+            </div>
+        </div>
+
+        <div class="setting-row">
+            <span>Glow:</span>
+            <input type="range" id="glow-slider" min="0" max="60" value="15">
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
