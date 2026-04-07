@@ -1,209 +1,213 @@
 :root {
     --main-color: #a616c0;
     --glow-blur: 15px;
-    --transition-smooth: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    --applied-size: 8rem;
 }
 
 body { 
     position: relative;
-    font-family: sans-serif; 
+    font-family: 'Montserrat', sans-serif; 
     display: flex; 
     justify-content: center; 
     align-items: center; 
     min-height: 100vh; 
-    background: radial-gradient(circle at center, #1a1a1a 0%, #0f0f0f 100%);
+    background: #0a0a0a;
     margin: 0;
     color: #eee;
     overflow: hidden;
+    touch-action: none;
 }
 
-/* --- CLOCK CONTAINER (PS5 BOX) --- */
 #clock-container {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* This is the magic for vertical centering */
+    justify-content: center;
     align-items: center;
     
-    min-width: 400px;
-    min-height: 350px; /* Increased to ensure enough 'swing' space */
-    padding: 2rem;
-    background: rgba(20, 20, 20, 0.95);
-    border-radius: 30px;
-    position: relative;
-    overflow: hidden;
+    /* Absolute Centering Lock */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    width: fit-content;
+    padding: 3rem 4rem;
+    background: #0f0f0f;
+    border-radius: 40px;
     z-index: 1;
     transition: var(--transition-smooth);
 }
 
+/* THE SNAKE EFFECT */
 #clock-container::before {
     content: "";
     position: absolute;
-    width: 150%;
-    height: 150%;
-    background: conic-gradient(transparent, var(--main-color), transparent 30%);
-    top: -25%;
-    left: -25%;
-    animation: border-rotate 4s linear infinite;
-    z-index: -2;
+    inset: -3px;
+    padding: 3px; 
+    border-radius: 43px; 
+    background: conic-gradient(from var(--angle), transparent 70%, var(--main-color));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: rotateSnake 4s linear infinite;
+    transition: var(--transition-smooth);
 }
 
-#clock-container::after {
-    content: "";
-    position: absolute;
-    inset: 4px;
-    background: rgb(15, 15, 15);
-    border-radius: 26px;
-    z-index: -1;
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
 
-@keyframes border-rotate {
-    100% { transform: rotate(360deg); }
+@keyframes rotateSnake {
+    to { --angle: 360deg; }
 }
 
-.bg-glow {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 250px; height: 250px;
-    background: var(--main-color);
-    filter: blur(100px);
-    opacity: 0.15;
-    z-index: -1;
-    pointer-events: none;
-}
-
-/* --- TIME DISPLAY --- */
 #time {
-    /* Swap Orbitron for Montserrat */
-    font-family: 'Montserrat', sans-serif; 
-    
-    /* Samsung look uses Weight 700 or 800 */
     font-weight: 700; 
-    
     color: var(--main-color);
-    text-shadow: 0 0 var(--glow-blur) var(--main-color), 
-                 2px 2px 10px rgba(0, 0, 0, 0.5);
-    
-    font-size: 5rem;
-    
-    /* Samsung fonts are cleaner with less spacing */
+    text-shadow: 0 0 var(--glow-blur) var(--main-color);
+    font-size: clamp(2rem, 15vw, var(--applied-size));
     letter-spacing: -2px; 
-    
     z-index: 10;
     cursor: pointer;
     user-select: none;
-    transition: var(--transition-smooth), font-size 0.3s ease;
+    transition: var(--transition-smooth);
+    text-align: center;
+    white-space: nowrap;
+    line-height: 1;
 }
-.colon {
-    opacity: 0.5;
-    font-weight: 300; /* Thinner colon */
-    margin: 0 2px;
+
+#clock-container.stacked #time {
+    display: flex;
+    flex-direction: column;
+    white-space: normal;
+    line-height: 0.8;
 }
-/* --- AUTO-CENTERING CONTROLS --- */
+
+/* Glow Off Logic */
+#clock-container.no-glow #time {
+    text-shadow: none !important;
+}
+#clock-container.no-glow::before {
+    box-shadow: none !important;
+}
+
+.colon { opacity: 0.6; font-weight: 300; margin: 0 4px; }
+
+/* THE CENTERING FIX: Height Collapse */
 #fade-controls {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    max-height: 400px; /* Large enough to fit all controls */
     opacity: 1;
-    max-height: 400px; /* Increased slightly */
-    /* REMOVE overflow: hidden from here */
+    margin-top: 30px;
     transition: var(--transition-smooth);
-    margin-top: 20px;
-    padding: 10px 0; /* Adds space so glows don't get cut off */
 }
 
-#fade-controls.hidden-ui {
-    opacity: 0;
+/* When UI hides, crush the height to 0 so the container re-centers the clock */
+.hidden-ui #date-display,
+#fade-controls.hidden-ui { 
+    opacity: 0; 
     max-height: 0;
     margin-top: 0;
-    padding: 0; /* Collapse padding when hidden to ensure perfect centering */
-    pointer-events: none;
-    overflow: hidden; /* ONLY hide overflow when we are actually shrinking it */
+    margin-bottom: 0;
+    pointer-events: none; 
 }
 
-.size-selector {
-    display: flex;
-    gap: 15px;
-    padding: 5px; /* Ensures the 'scale(1.1)' effect has room to grow */
+/* GRID CENTERING FIX */
+.toggle-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; 
+    gap: 12px 20px;
+    align-items: center;
+    width: 100%;
+    max-width: 320px;
 }
 
-/* --- CIRCULAR SIZE SELECTOR --- */
-.controls {
-    margin-top: 25px;
-    border-top: 1px solid #333;
-    padding-top: 20px;
+.label-left { text-align: right; color: #555; font-size: 0.8rem; font-weight: bold; min-width: 70px; }
+.label-right { text-align: left; color: #555; font-size: 0.8rem; font-weight: bold; min-width: 70px; }
+
+.controls-divider {
+    width: 100%;
+    max-width: 280px;
+    border-top: 1px solid #222;
+    padding-top: 25px;
+    margin-top: 20px;
     display: flex;
     justify-content: center;
 }
 
 .size-selector { display: flex; gap: 15px; }
-
 .size-circle { position: relative; cursor: pointer; }
-
 .size-circle input { position: absolute; opacity: 0; }
 
 .checkmark {
     display: flex; align-items: center; justify-content: center;
-    height: 38px; width: 38px;
-    background-color: #222;
-    border: 2px solid #444;
+    height: 40px; width: 40px;
+    background-color: #1a1a1a;
+    border: 2px solid #333;
     border-radius: 50%;
-    font-size: 0.75rem; font-weight: bold; color: #888;
-    transition: all 0.3s ease;
+    font-size: 0.75rem; font-weight: bold; color: #555;
+    transition: 0.3s;
 }
-
-.size-circle:hover .checkmark { border-color: var(--main-color); color: #eee; }
 
 .size-circle input:checked ~ .checkmark {
     background-color: var(--main-color);
     border-color: #fff;
     color: #fff;
     box-shadow: 0 0 15px var(--main-color);
-    transform: scale(1.1);
 }
 
-/* --- DRAGGABLE MENU --- */
+/* SETTINGS MODAL & COLOR PICKER FIX */
 #clock-settings {
     position: fixed;
-    top: 50%; left: calc(50% + 320px);
-    transform: translateY(-50%);
-    background: #252525;
-    padding: 0 15px 15px 15px;
-    border-radius: 12px;
-    border: 1px solid var(--main-color);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #151515;
+    padding: 15px;
+    border-radius: 20px;
+    border: 1px solid #333;
     z-index: 999;
-    width: 190px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    width: 240px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.9);
 }
 
-#settings-header {
-    padding: 10px; cursor: move; background: #333;
-    margin: 0 -15px 15px -15px; border-radius: 12px 12px 0 0;
-    font-size: 0.7rem; color: #aaa; text-align: center;
-    text-transform: uppercase; letter-spacing: 1px;
+#color-preview { 
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%; 
+    background: var(--main-color); 
+    border: 2px solid #fff; 
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
 }
+
+#color-picker { 
+    position: absolute;
+    opacity: 0; 
+    width: 100%; 
+    height: 100%; 
+    top: 0; left: 0;
+    cursor: pointer;
+    transform: scale(3);
+}
+
+#settings-header { padding: 10px; cursor: move; color: #555; text-align: center; font-size: 0.7rem; border-bottom: 1px solid #222; margin-bottom: 15px; }
+#done-btn { width: 100%; padding: 12px; background: var(--main-color); border: none; color: #fff; font-weight: bold; border-radius: 12px; cursor: pointer; }
+#glow-slider { accent-color: var(--main-color); }
 
 .setting-row { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; }
 
-#color-preview {
-    width: 26px; height: 26px; border-radius: 50%;
-    background: var(--main-color); cursor: pointer; border: 2px solid #fff;
-    display: flex; align-items: center; justify-content: center; overflow: hidden;
-}
-
-#color-picker { opacity: 0; width: 40px; height: 40px; cursor: pointer; }
-
-/* --- SWITCHES & PULSE --- */
-@keyframes pulse {
-    0%, 100% { text-shadow: 0 0 var(--glow-blur) var(--main-color); }
-    50% { text-shadow: 0 0 calc(var(--glow-blur) * 2.5) var(--main-color); }
-}
-
-body:has(#pulse-toggle:checked) #time { animation: pulse 2s infinite ease-in-out; }
-
-.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.switch { position: relative; width: 42px; height: 22px; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; inset: 0; background-color: #333; transition: .4s; border-radius: 20px; }
-.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+.slider { position: absolute; inset: 0; background-color: #222; transition: .4s; border-radius: 20px; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #fff; transition: .4s; border-radius: 50%; }
 input:checked + .slider { background-color: var(--main-color); }
 input:checked + .slider:before { transform: translateX(20px); }
-.toggle-wrapper { margin-top: 15px; color: #888; font-size: 0.85rem; display: flex; justify-content: center; align-items: center; gap: 10px; }
-#glow-slider { accent-color: var(--main-color); }
