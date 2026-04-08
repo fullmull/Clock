@@ -3,30 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Clock</title>
+    <title>Luxury Clock Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="clock-container">
-        <div id="date-display"></div>
-        
-        <div id="time" title="Click for Settings">00:00:00</div>
+        <div id="orbit-ring"></div>
+        <div id="time" title="Click for Settings | Double Click for Fullscreen">
+            <span id="h">00</span><span class="colon">:</span><span id="m">00</span><span id="s-wrap"></span>
+        </div>
 
         <div id="fade-controls">
             <div class="toggle-grid">
                 <div class="label-left">12h</div>
                 <label class="switch"><input type="checkbox" id="format-toggle"><span class="slider"></span></label>
                 <div class="label-right">24h</div>
-
-                <div class="label-left">Hide Sec</div>
-                <label class="switch"><input type="checkbox" id="seconds-toggle" checked><span class="slider"></span></label>
-                <div class="label-right">Show Sec</div>
-
-                <div class="label-left">Glow Off</div>
-                <label class="switch"><input type="checkbox" id="glow-toggle" checked><span class="slider"></span></label>
-                <div class="label-right">Glow On</div>
 
                 <div class="label-left">Classic</div>
                 <label class="switch"><input type="checkbox" id="layout-toggle"><span class="slider"></span></label>
@@ -45,16 +38,35 @@
     </div>
 
     <div id="clock-settings" style="display: none;">
-        <div id="settings-header">⠿ DRAG TO MOVE</div>
+        <div id="settings-header">⠿ CUSTOMIZE</div>
+        
+        <div class="setting-row">
+            <span>Dark/Light</span>
+            <label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider"></span></label>
+        </div>
+
+        <div class="setting-row">
+            <span>Show Seconds</span>
+            <label class="switch"><input type="checkbox" id="seconds-toggle" checked><span class="slider"></span></label>
+        </div>
+
+        <div class="setting-row">
+            <span>Glow Effect</span>
+            <label class="switch"><input type="checkbox" id="glow-toggle" checked><span class="slider"></span></label>
+        </div>
+
+        <div class="controls-divider" style="margin: 10px 0;"></div>
+
         <div class="setting-row">
             <span>Color:</span>
-            <div id="color-preview"><input type="color" id="color-picker"></div>
+            <input type="color" id="color-picker">
         </div>
         <div class="setting-row">
             <span>Glow:</span>
             <input type="range" id="glow-slider" min="0" max="60" value="15">
         </div>
-        <button id="done-btn">DONE</button>
+        
+        <button id="close-settings-btn">DONE</button>
     </div>
     
     <script src="script.js"></script>

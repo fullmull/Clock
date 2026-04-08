@@ -1,114 +1,151 @@
-const timeDisplay = document.getElementById('time');
-const settingsMenu = document.getElementById('clock-settings');
-const header = document.getElementById('settings-header');
-const fadeControls = document.getElementById('fade-controls');
-const colorPicker = document.getElementById('color-picker');
-const colorPreview = document.getElementById('color-preview');
-const glowSlider = document.getElementById('glow-slider');
-const formatToggle = document.getElementById('format-toggle');
-const secondsToggle = document.getElementById('seconds-toggle');
-const glowToggle = document.getElementById('glow-toggle');
-const layoutToggle = document.getElementById('layout-toggle');
-const container = document.getElementById('clock-container');
-const doneBtn = document.getElementById('done-btn');
+// --- DOM ELEMENTS ---
+const root = document.documentElement;
+const hElem = document.getElementById('h'),
+      mElem = document.getElementById('m'),
+      sWrap = document.getElementById('s-wrap');
 
+const settingsMenu = document.getElementById('clock-settings'),
+      header = document.getElementById('settings-header'),
+      closeBtn = document.getElementById('close-settings-btn'),
+      fadeControls = document.getElementById('fade-controls'),
+      container = document.getElementById('clock-container');
+
+const colorPicker = document.getElementById('color-picker'),
+      glowSlider = document.getElementById('glow-slider'),
+      formatToggle = document.getElementById('format-toggle'),
+      secondsToggle = document.getElementById('seconds-toggle'),
+      glowToggle = document.getElementById('glow-toggle'),
+      layoutToggle = document.getElementById('layout-toggle'),
+      themeToggle = document.getElementById('theme-toggle');
+
+// --- STATE & VARS ---
 let fadeTimer;
 let isDragging = false;
 let startX, startY, initialLeft, initialTop;
 
-function applyColor(color) {
-    document.documentElement.style.setProperty('--main-color', color);
-    if (colorPreview) colorPreview.style.backgroundColor = color;
-    if (doneBtn) doneBtn.style.backgroundColor = color;
+// --- CORE FUNCTIONS ---
+const applyColor = (color) => {
+    root.style.setProperty('--main-color', color);
     localStorage.setItem('clockColor', color);
-}
+};
 
-function applyGlow(val) {
-    document.documentElement.style.setProperty('--glow-blur', val + 'px');
+const applyGlow = (val) => {
+    root.style.setProperty('--glow-blur', `${val}px`);
     localStorage.setItem('clockGlow', val);
-}
+};
 
-function updateGlowState() {
+const updateGlowState = () => {
     container.classList.toggle('no-glow', !glowToggle.checked);
-}
+};
 
-function setClockSize(sizeValue) {
-    document.documentElement.style.setProperty('--applied-size', sizeValue);
+const setClockSize = (sizeValue) => {
+    root.style.setProperty('--applied-size', sizeValue);
     localStorage.setItem('clockSize', sizeValue);
-}
+};
 
-// Initial Load
-const savedColor = localStorage.getItem('clockColor') || '#a616c0';
-const savedGlow  = localStorage.getItem('clockGlow') || '15';
-const savedSize  = localStorage.getItem('clockSize') || '8rem';
+const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+        root.requestFullscreen().catch(console.error);
+    } else {
+        document.exitFullscreen();
+    }
+};
 
-applyColor(savedColor);
-applyGlow(savedGlow);
-setClockSize(savedSize);
-
-colorPicker.value = savedColor;
-glowSlider.value = savedGlow;
-
-const activeRadio = document.querySelector(`input[value="${savedSize}"]`);
-if (activeRadio) activeRadio.checked = true;
-
-// Initialize toggles from storage
-formatToggle.checked = localStorage.getItem('use24H') === 'true';
-secondsToggle.checked = (localStorage.getItem('showSec') ?? 'true') === 'true';
-glowToggle.checked = (localStorage.getItem('useGlow') ?? 'true') === 'true';
-layoutToggle.checked = localStorage.getItem('isStacked') === 'true';
-
-// Apply initial states
-updateGlowState();
-
-function showUI() {
+const showUI = () => {
     container.classList.remove('hidden-ui');
     fadeControls.classList.remove('hidden-ui');
-    
     clearTimeout(fadeTimer);
+    
     fadeTimer = setTimeout(() => {
-        // Only hide if the settings menu isn't open
-        if (settingsMenu.style.display === 'none') {
+        if (settingsMenu.style.display !== 'block') {
             container.classList.add('hidden-ui');
             fadeControls.classList.add('hidden-ui');
         }
-    }, 5000);
-}
+    }, 6000);
+};
 
-// Show UI on mouse move or touch
-['pointermove', 'pointerdown'].forEach(ev => document.addEventListener(ev, showUI));
+// --- INITIALIZATION ---
+const init = () => {
+    const savedColor = localStorage.getItem('clockColor') || '#a616c0';
+    const savedGlow  = localStorage.getItem('clockGlow') || '15';
+    const savedSize  = localStorage.getItem('clockSize') || '8rem';
+    const savedTheme = localStorage.getItem('theme') || 'dark';
 
-// Dragging Logic for Settings Menu
+    // Apply Styles
+    applyColor(savedColor);
+    applyGlow(savedGlow);
+    setClockSize(savedSize);
+    colorPicker.value = savedColor;
+    glowSlider.value = savedGlow;
+
+    // Apply Theme
+    if (savedTheme === 'light') {
+        root.setAttribute('data-theme', 'light');
+        themeToggle.checked = true;
+    }
+
+    // Apply Toggles
+    formatToggle.checked = localStorage.getItem('use24H') === 'true';
+    secondsToggle.checked = (localStorage.getItem('showSec') ?? 'true') === 'true';
+    glowToggle.checked = (localStorage.getItem('useGlow') ?? 'true') === 'true';
+    layoutToggle.checked = localStorage.getItem('isStacked') === 'true';
+
+    const activeRadio = document.querySelector(`input[value="${savedSize}"]`);
+    if (activeRadio) activeRadio.checked = true;
+
+    updateGlowState();
+    updateClock();
+    showUI();
+};
+
+// --- EVENT HANDLERS ---
+themeToggle.onchange = () => {
+    const theme = themeToggle.checked ? 'light' : 'dark';
+    theme === 'light' ? root.setAttribute('data-theme', 'light') : root.removeAttribute('data-theme');
+    localStorage.setItem('theme', theme);
+};
+
 header.onpointerdown = (e) => {
     isDragging = true;
-    startX = e.clientX; startY = e.clientY;
     const rect = settingsMenu.getBoundingClientRect();
-    initialLeft = rect.left; initialTop = rect.top;
+    startX = e.clientX; 
+    startY = e.clientY;
+    initialLeft = rect.left; 
+    initialTop = rect.top;
     header.setPointerCapture(e.pointerId);
 };
 
 header.onpointermove = (e) => {
     if (!isDragging) return;
-    settingsMenu.style.left = `${initialLeft + (e.clientX - startX) + (settingsMenu.offsetWidth / 2)}px`;
-    settingsMenu.style.top = `${initialTop + (e.clientY - startY) + (settingsMenu.offsetHeight / 2)}px`;
-    settingsMenu.style.transform = "translate(-50%, -50%)";
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    
+    // We remove the translate and use absolute positioning for precision
+    settingsMenu.style.transform = "none";
     settingsMenu.style.margin = "0";
+    settingsMenu.style.left = `${initialLeft + dx}px`;
+    settingsMenu.style.top = `${initialTop + dy}px`;
 };
 
-header.onpointerup = (e) => { isDragging = false; header.releasePointerCapture(e.pointerId); };
+header.onpointerup = (e) => { 
+    isDragging = false; 
+    header.releasePointerCapture(e.pointerId); 
+};
 
-// Buttons and Interactions
-timeDisplay.onclick = (e) => { e.stopPropagation(); settingsMenu.style.display = 'block'; };
-doneBtn.onclick = () => { settingsMenu.style.display = 'none'; showUI(); };
+document.getElementById('time').onclick = (e) => { 
+    e.stopPropagation(); 
+    const isVisible = settingsMenu.style.display === 'block';
+    settingsMenu.style.display = isVisible ? 'none' : 'block'; 
+};
 
+closeBtn.onclick = () => {
+    settingsMenu.style.display = 'none';
+    showUI();
+};
+
+// Toggle event listeners
 colorPicker.oninput = (e) => applyColor(e.target.value);
 glowSlider.oninput = (e) => applyGlow(e.target.value);
-
-document.querySelectorAll('input[name="size-option"]').forEach(radio => {
-    radio.onchange = (e) => setClockSize(e.target.value);
-});
-
-// Update localStorage when toggles change
 formatToggle.onchange = () => localStorage.setItem('use24H', formatToggle.checked);
 secondsToggle.onchange = () => localStorage.setItem('showSec', secondsToggle.checked);
 layoutToggle.onchange = () => localStorage.setItem('isStacked', layoutToggle.checked);
@@ -117,29 +154,47 @@ glowToggle.onchange = () => {
     updateGlowState();
 };
 
-// Main Clock Update Function
+document.querySelectorAll('input[name="size-option"]').forEach(radio => {
+    radio.onchange = (e) => setClockSize(e.target.value);
+});
+
+// Global listeners
+['pointermove', 'pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, showUI));
+document.addEventListener('dblclick', toggleFullscreen);
+
+// Click outside to close settings
+document.addEventListener('pointerdown', (e) => {
+    if (settingsMenu.style.display === 'block' && !settingsMenu.contains(e.target) && !document.getElementById('time').contains(e.target)) {
+        settingsMenu.style.display = 'none';
+        showUI();
+    }
+});
+
+// --- CLOCK ENGINE ---
 function updateClock() {
     const now = new Date();
-    
-    // Apply layout state
     container.classList.toggle('stacked', layoutToggle.checked);
     
     let h = now.getHours();
     if (!formatToggle.checked) h = h % 12 || 12;
-    h = h.toString().padStart(2, '0');
-    let m = now.getMinutes().toString().padStart(2, '0');
-    let s = now.getSeconds().toString().padStart(2, '0');
+    
+    const hStr = h.toString().padStart(2, '0');
+    const mStr = now.getMinutes().toString().padStart(2, '0');
+    const sStr = now.getSeconds().toString().padStart(2, '0');
 
-    if (layoutToggle.checked) {
-        timeDisplay.innerHTML = `<div>${h}</div><div>${m}</div>`;
-    } else {
-        let res = `${h}:${m}`;
-        if (secondsToggle.checked) res += `:${s}`;
-        timeDisplay.innerHTML = res.replace(/:/g, '<span class="colon">:</span>');
+    if(hElem.innerText !== hStr) hElem.innerText = hStr;
+    if(mElem.innerText !== mStr) mElem.innerText = mStr;
+
+    let newHTML = "";
+    if (secondsToggle.checked) {
+        newHTML = layoutToggle.checked 
+            ? `<div class="stacked-sec">${sStr}</div>` 
+            : `<span class="colon">:</span>${sStr}`;
     }
+    
+    if (sWrap.innerHTML !== newHTML) sWrap.innerHTML = newHTML;
 }
 
-// Start Clock
+// Start
 setInterval(updateClock, 1000);
-updateClock();
-showUI();
+init();
