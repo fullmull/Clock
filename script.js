@@ -4,6 +4,12 @@ const hElem = document.getElementById('h'),
       mElem = document.getElementById('m'),
       sWrap = document.getElementById('s-wrap');
 
+const favicon = document.getElementById('favicon');
+const canvas = document.createElement('canvas');
+canvas.width = 32;
+canvas.height = 32;
+const ctx = canvas.getContext('2d');
+
 const settingsMenu = document.getElementById('clock-settings'),
       header = document.getElementById('settings-header'),
       closeBtn = document.getElementById('close-settings-btn'),
@@ -16,7 +22,8 @@ const colorPicker = document.getElementById('color-picker'),
       secondsToggle = document.getElementById('seconds-toggle'),
       glowToggle = document.getElementById('glow-toggle'),
       layoutToggle = document.getElementById('layout-toggle'),
-      themeToggle = document.getElementById('theme-toggle');
+      themeToggle = document.getElementById('theme-toggle'),
+      rainbowOrbitToggle = document.getElementById('rainbow-orbit-toggle');
 
 // --- STATE & VARS ---
 let fadeTimer;
@@ -24,6 +31,37 @@ let isDragging = false;
 let startX, startY, initialLeft, initialTop;
 
 // --- CORE FUNCTIONS ---
+function updateFavicon() {
+    ctx.clearRect(0, 0, 32, 32);
+
+    // Get the current color
+    const color = getComputedStyle(root).getPropertyValue('--main-color').trim();
+
+    // Draw the Orbit Ring in the icon
+    ctx.beginPath();
+    ctx.arc(16, 16, 12, 0, Math.PI * 2);
+    ctx.lineWidth = 4;
+
+    if (rainbowOrbitToggle.checked) {
+        // Simple rainbow for the tiny icon
+        const grad = ctx.createConicGradient(0, 16, 16);
+        grad.addColorStop(0, "red");
+        grad.addColorStop(0.2, "yellow");
+        grad.addColorStop(0.4, "green");
+        grad.addColorStop(0.6, "cyan");
+        grad.addColorStop(0.8, "blue");
+        grad.addColorStop(1, "red");
+        ctx.strokeStyle = grad;
+    } else {
+        ctx.strokeStyle = color;
+    }
+
+    ctx.stroke();
+
+    // Update the actual tab icon
+    favicon.href = canvas.toDataURL('image/png');
+}
+
 const applyColor = (color) => {
     root.style.setProperty('--main-color', color);
     localStorage.setItem('clockColor', color);
@@ -36,6 +74,10 @@ const applyGlow = (val) => {
 
 const updateGlowState = () => {
     container.classList.toggle('no-glow', !glowToggle.checked);
+};
+
+const updateRainbowOrbitState = () => {
+    container.classList.toggle('rainbow-orbit', rainbowOrbitToggle.checked);
 };
 
 const setClockSize = (sizeValue) => {
@@ -61,12 +103,12 @@ const showUI = () => {
             container.classList.add('hidden-ui');
             fadeControls.classList.add('hidden-ui');
         }
-    }, 6000);
+    }, 5000);
 };
 
 // --- INITIALIZATION ---
 const init = () => {
-    const savedColor = localStorage.getItem('clockColor') || '#a616c0';
+    const savedColor = localStorage.getItem('clockColor') || '#3516c0';
     const savedGlow  = localStorage.getItem('clockGlow') || '15';
     const savedSize  = localStorage.getItem('clockSize') || '8rem';
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -89,11 +131,13 @@ const init = () => {
     secondsToggle.checked = (localStorage.getItem('showSec') ?? 'true') === 'true';
     glowToggle.checked = (localStorage.getItem('useGlow') ?? 'true') === 'true';
     layoutToggle.checked = localStorage.getItem('isStacked') === 'true';
+    rainbowOrbitToggle.checked = localStorage.getItem('useRainbowOrbit') === 'true';
 
     const activeRadio = document.querySelector(`input[value="${savedSize}"]`);
     if (activeRadio) activeRadio.checked = true;
 
     updateGlowState();
+    updateRainbowOrbitState();
     updateClock();
     showUI();
 };
@@ -120,7 +164,6 @@ header.onpointermove = (e) => {
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
     
-    // We remove the translate and use absolute positioning for precision
     settingsMenu.style.transform = "none";
     settingsMenu.style.margin = "0";
     settingsMenu.style.left = `${initialLeft + dx}px`;
@@ -152,6 +195,10 @@ layoutToggle.onchange = () => localStorage.setItem('isStacked', layoutToggle.che
 glowToggle.onchange = () => {
     localStorage.setItem('useGlow', glowToggle.checked);
     updateGlowState();
+};
+rainbowOrbitToggle.onchange = () => {
+    localStorage.setItem('useRainbowOrbit', rainbowOrbitToggle.checked);
+    updateRainbowOrbitState();
 };
 
 document.querySelectorAll('input[name="size-option"]').forEach(radio => {
@@ -193,6 +240,8 @@ function updateClock() {
     }
     
     if (sWrap.innerHTML !== newHTML) sWrap.innerHTML = newHTML;
+    document.title = `${hStr}:${mStr} | Clock`;
+    updateFavicon();
 }
 
 // Start

@@ -51,7 +51,7 @@ body {
     max-height: 95vh;
     height: auto;
     min-height: fit-content;
-    overflow: visible; /* Prevents glow/orbit clipping */
+    overflow: visible;
     padding: 2rem 4rem;
     background: var(--container-bg);
     border: 1px solid var(--border-color);
@@ -76,6 +76,22 @@ body {
     pointer-events: none;
     z-index: 5;
     will-change: transform;
+    transition: background 0.5s ease; /* Smooth transition when toggling rainbow off */
+}
+
+/* --- RAINBOW ORBIT OVERRIDE --- */
+#clock-container.rainbow-orbit #orbit-ring {
+    background: conic-gradient(
+        from var(--angle), 
+        transparent 50%,
+        #ff0000,           
+        #ffff00,         
+        #00ff00,     
+        #00ffff,
+        #0000ff,
+        #8b00ff,           
+        transparent 100%
+    );
 }
 
 @property --angle {
@@ -106,7 +122,6 @@ body {
     font-feature-settings: "tnum";
 }
 
-/* TIGHTER STACKED VIEW */
 #clock-container.stacked #time { 
     flex-direction: column; 
     font-size: clamp(2rem, 13vw, var(--applied-size)); 
@@ -241,7 +256,6 @@ body {
     transition: filter 0.3s;
 }
 
-/* Switches */
 .switch { position: relative; width: 44px; height: 22px; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; inset: 0; background-color: #111; transition: .4s; border-radius: 20px; border: 1px solid #222; }
