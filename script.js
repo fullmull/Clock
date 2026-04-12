@@ -40,7 +40,7 @@ async function fetchImageBatch() {
         const response = await fetch('/api/get-images');
         if (!response.ok) throw new Error();
         const data = await response.json();
-        dynamicImageQueue = data.map(photo => photo.urls.regular);
+        dynamicImageQueue = data.map(photo => photo.urls.full);
     } catch {
         dynamicImageQueue = [];
     }
