@@ -40,7 +40,8 @@ async function fetchImageBatch() {
         const response = await fetch('/api/get-images');
         if (!response.ok) throw new Error();
         const data = await response.json();
-        dynamicImageQueue = data.map(photo => photo.urls.full);
+        // The Goldilocks URL: Perfectly sharp 2560px width, auto-formatted for web
+        dynamicImageQueue = data.map(photo => `${photo.urls.raw}&w=2560&q=80&auto=format`);
     } catch {
         dynamicImageQueue = [];
     }
@@ -161,18 +162,25 @@ async function changeImage() {
         slide2.style.opacity = 0;
         return;
     }
+    
     const nextImage = dynamicImageQueue.pop();
-    if (activeLayer === 1) {
-        slide2.style.backgroundImage = `url('${nextImage}')`;
-        slide2.style.opacity = 1;
-        slide1.style.opacity = 0;
-        activeLayer = 2;
-    } else {
-        slide1.style.backgroundImage = `url('${nextImage}')`;
-        slide1.style.opacity = 1;
-        slide2.style.opacity = 0;
-        activeLayer = 1;
-    }
+    
+    // Preload image to prevent decode-lag during CSS transition
+    const preloader = new Image();
+    preloader.src = nextImage;
+    preloader.onload = () => {
+        if (activeLayer === 1) {
+            slide2.style.backgroundImage = `url('${nextImage}')`;
+            slide2.style.opacity = 1;
+            slide1.style.opacity = 0;
+            activeLayer = 2;
+        } else {
+            slide1.style.backgroundImage = `url('${nextImage}')`;
+            slide1.style.opacity = 1;
+            slide2.style.opacity = 0;
+            activeLayer = 1;
+        }
+    };
 }
 
 function updateFavicon() {

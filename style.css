@@ -244,6 +244,9 @@ input:checked + .slider:before { transform: translateX(22px); background: #fff; 
     background-position: center;
     opacity: 0;
     transition: opacity 2.5s ease-in-out;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 #slideshow-overlay {
     position: fixed;
@@ -311,12 +314,12 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
 @keyframes bgReveal {
     0% {
         opacity: 0;
-        transform: scale(1.05);
+        transform: scale(1.05) translateZ(0);
         filter: blur(15px);
     }
     100% {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateZ(0);
         filter: blur(0px);
     }
 }
