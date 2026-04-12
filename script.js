@@ -250,7 +250,6 @@ document.addEventListener('pointerdown', (e) => {
 function updateClock() {
     const now = new Date();
     container.classList.toggle('stacked', layoutToggle.checked);
-    container.classList.toggle('has-seconds', secondsToggle.checked);
     
     let h = now.getHours();
     if (!formatToggle.checked) h = h % 12 || 12;
@@ -302,6 +301,21 @@ const init = () => {
     updateGlowState();
     updateRainbowOrbitState();
     updateClock();
+
+    const colonElem = document.querySelector('.colon');
+    const ringElem = document.getElementById('orbit-ring');
+    const startupElements = [ringElem, hElem, colonElem, mElem, sWrap, fadeControls];
+    
+    startupElements.forEach(el => {
+        if(el) el.classList.add('startup-anim');
+    });
+
+    setTimeout(() => {
+        startupElements.forEach(el => {
+            if(el) el.classList.remove('startup-anim');
+        });
+    }, 4000);
+
     showUI();
 };
 
