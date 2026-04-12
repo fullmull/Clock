@@ -55,7 +55,14 @@ const applyGlow = (val) => {
 };
 
 const setClockSize = (sizeValue) => {
-    root.style.setProperty('--applied-size', sizeValue);
+    const scaleMap = {
+        '4rem': 0.55,
+        '8rem': 0.70,
+        '12rem': 0.85,
+        '16rem': 1.0
+    };
+    const scale = scaleMap[sizeValue] || 0.85;
+    root.style.setProperty('--size-scale', scale);
     localStorage.setItem('clockSize', sizeValue);
 };
 
@@ -243,6 +250,8 @@ document.addEventListener('pointerdown', (e) => {
 function updateClock() {
     const now = new Date();
     container.classList.toggle('stacked', layoutToggle.checked);
+    container.classList.toggle('has-seconds', secondsToggle.checked);
+    
     let h = now.getHours();
     if (!formatToggle.checked) h = h % 12 || 12;
     const hStr = h.toString().padStart(2, '0');
