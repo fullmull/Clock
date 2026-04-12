@@ -53,7 +53,7 @@ body {
 }
 #orbit-ring {
     position: absolute;
-    inset: 0;
+    inset: -1px;
     padding: 4px;
     border-radius: 40px;
     background: conic-gradient(from var(--angle), transparent 50%, var(--main-color) 95%, transparent 100%);
