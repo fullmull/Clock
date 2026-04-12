@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <title>Orbit Clock | Minimalist Digital Design</title>
     <meta name="description" content="A clean, glassmorphic digital clock with animated orbit rings. Minimalist design for a focused workspace.">
     <meta name="keywords" content="digital clock, orbit clock, minimalist clock, glassmorphism, online clock">
-    
     <meta property="og:title" content="Orbit Clock">
     <meta property="og:description" content="Minimalist digital clock with orbit animations.">
     <meta property="og:url" content="https://www.orbitclock.online">
@@ -16,14 +14,12 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    
     <link rel="canonical" href="https://www.orbitclock.online/" />
     <link id="favicon" rel="icon" type="image/png" href="">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="slideshow-container">
         <div id="slide-1" class="slide"></div>
         <div id="slide-2" class="slide"></div>
@@ -64,29 +60,23 @@
 
     <div id="clock-settings" style="display: none;">
         <div id="settings-header">⠿ CUSTOMIZE</div>
-        
         <div class="setting-row">
             <span>Dark/Light</span>
             <label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider"></span></label>
         </div>
-
         <div class="setting-row">
             <span>Show Seconds</span>
             <label class="switch"><input type="checkbox" id="seconds-toggle" checked><span class="slider"></span></label>
         </div>
-
         <div class="setting-row">
             <span>Glow Effect</span>
             <label class="switch"><input type="checkbox" id="glow-toggle" checked><span class="slider"></span></label>
         </div>
-
         <div class="setting-row">
             <span>Rainbow Orbit</span>
             <label class="switch"><input type="checkbox" id="rainbow-orbit-toggle"><span class="slider"></span></label>
         </div>
-
         <div class="controls-divider" style="margin: 10px 0;"></div>
-
         <div class="setting-row">
             <span>Color:</span>
             <input type="color" id="color-picker">
@@ -95,10 +85,8 @@
             <span>Glow:</span>
             <input type="range" id="glow-slider" min="0" max="60" value="15">
         </div>
-        
         <button id="close-settings-btn">DONE</button>
     </div>
-    
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,19 +1,12 @@
-// ==========================================
-// 1. DOM ELEMENTS
-// ==========================================
 const root = document.documentElement;
 const container = document.getElementById('clock-container');
 const hElem = document.getElementById('h');
 const mElem = document.getElementById('m');
 const sWrap = document.getElementById('s-wrap');
 const fadeControls = document.getElementById('fade-controls');
-
-// Settings Menu Elements
 const settingsMenu = document.getElementById('clock-settings');
 const header = document.getElementById('settings-header');
 const closeBtn = document.getElementById('close-settings-btn');
-
-// Toggles & Inputs
 const colorPicker = document.getElementById('color-picker');
 const glowSlider = document.getElementById('glow-slider');
 const formatToggle = document.getElementById('format-toggle');
@@ -22,29 +15,35 @@ const glowToggle = document.getElementById('glow-toggle');
 const layoutToggle = document.getElementById('layout-toggle');
 const themeToggle = document.getElementById('theme-toggle');
 const rainbowOrbitToggle = document.getElementById('rainbow-orbit-toggle');
-
-// Slideshow Elements
 const slideshowToggle = document.getElementById('slideshow-toggle');
 const slide1 = document.getElementById('slide-1');
 const slide2 = document.getElementById('slide-2');
-
-// Favicon Setup
 const favicon = document.getElementById('favicon');
 const canvas = document.createElement('canvas');
+
 canvas.width = 32;
 canvas.height = 32;
 const ctx = canvas.getContext('2d');
 
-// ==========================================
-// 2. STATE VARIABLES
-// ==========================================
 let fadeTimer;
 let isDragging = false;
 let offsetX, offsetY;
+let slideshowInterval;
+let isSlideshowActive = false;
+let activeLayer = 1;
+let dynamicImageQueue = [];
 
-// ==========================================
-// 3. CORE FUNCTIONS (Appearance)
-// ==========================================
+async function fetchImageBatch() {
+    try {
+        const response = await fetch('/api/get-images');
+        if (!response.ok) throw new Error("Backend failed");
+        const data = await response.json();
+        dynamicImageQueue = data.map(photo => photo.urls.regular);
+    } catch (error) {
+        dynamicImageQueue = [];
+    }
+}
+
 const applyColor = (color) => {
     root.style.setProperty('--main-color', color);
     localStorage.setItem('clockColor', color);
@@ -89,47 +88,30 @@ const showUI = () => {
     }, 5000);
 };
 
-// ==========================================
-// 4. DRAGGING & MENU LOGIC
-// ==========================================
 const centerMenu = () => {
-    // Briefly make it visible but transparent to get exact dimensions
     settingsMenu.style.visibility = 'hidden';
     settingsMenu.style.display = 'block';
     
-    const width = settingsMenu.offsetWidth;
-    const height = settingsMenu.offsetHeight;
-    
-    const x = (window.innerWidth - width) / 2;
-    const y = (window.innerHeight - height) / 2;
+    const x = (window.innerWidth - settingsMenu.offsetWidth) / 2;
+    const y = (window.innerHeight - settingsMenu.offsetHeight) / 2;
     
     settingsMenu.style.left = `${x}px`;
     settingsMenu.style.top = `${y}px`;
-    
     settingsMenu.style.visibility = 'visible';
 };
 
 header.onpointerdown = (e) => {
     isDragging = true;
     const rect = settingsMenu.getBoundingClientRect();
-    
-    // Get exact distance from click to the top-left corner
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
-    
     header.setPointerCapture(e.pointerId);
 };
 
 header.onpointermove = (e) => {
     if (!isDragging) return;
-    
-    let newX = e.clientX - offsetX;
-    let newY = e.clientY - offsetY;
-
-    // Safety: prevent dragging completely off the screen
-    newX = Math.max(0, Math.min(newX, window.innerWidth - settingsMenu.offsetWidth));
-    newY = Math.max(0, Math.min(newY, window.innerHeight - settingsMenu.offsetHeight));
-
+    let newX = Math.max(0, Math.min(e.clientX - offsetX, window.innerWidth - settingsMenu.offsetWidth));
+    let newY = Math.max(0, Math.min(e.clientY - offsetY, window.innerHeight - settingsMenu.offsetHeight));
     settingsMenu.style.left = `${newX}px`;
     settingsMenu.style.top = `${newY}px`;
 };
@@ -139,11 +121,10 @@ header.onpointerup = (e) => {
     header.releasePointerCapture(e.pointerId); 
 };
 
-// Open Settings Menu
 document.getElementById('time').onclick = (e) => { 
     e.stopPropagation(); 
     if (settingsMenu.style.display !== 'block') {
-        centerMenu(); // Force dead-center every time it opens
+        centerMenu();
     } else {
         settingsMenu.style.display = 'none';
     }
@@ -154,38 +135,13 @@ closeBtn.onclick = () => {
     showUI();
 };
 
-// ==========================================
-// 5. SLIDESHOW & FAVICON LOGIC
-// ==========================================
-let slideshowInterval;
-let isSlideshowActive = false;
-let activeLayer = 1;
-let dynamicImageQueue = [];
-
-
-async function fetchImageBatch() {
-    try {
-        const response = await fetch('/api/get-images');
-        
-        if (!response.ok) throw new Error("Backend failed or API limit reached");
-        
-        const data = await response.json();
-        dynamicImageQueue = data.map(photo => photo.urls.regular);
-    } catch (error) {
-        console.warn("Unsplash API offline. Defaulting to solid background.");
-        dynamicImageQueue = []; 
-    }
-}
-
 async function changeImage() {
     if (!isSlideshowActive) return;
 
-    // Fetch more images if we run out
     if (dynamicImageQueue.length === 0) {
         await fetchImageBatch();
     }
 
-    // If the queue is STILL empty (API failed), elegantly fade to black
     if (dynamicImageQueue.length === 0) {
         slide1.style.opacity = 0;
         slide2.style.opacity = 0;
@@ -229,20 +185,14 @@ function updateFavicon() {
     favicon.href = canvas.toDataURL('image/png');
 }
 
-// ==========================================
-// 6. EVENT LISTENERS
-// ==========================================
 slideshowToggle.addEventListener('change', async () => {
     isSlideshowActive = slideshowToggle.checked;
     
     if (isSlideshowActive) {
         document.body.classList.add('slideshow-active');
-        
-        // Fetch first batch immediately if empty
         if (dynamicImageQueue.length === 0) {
             await fetchImageBatch();
         }
-        
         changeImage(); 
         slideshowInterval = setInterval(changeImage, 20000); 
     } else {
@@ -279,11 +229,9 @@ document.querySelectorAll('input[name="size-option"]').forEach(radio => {
     radio.onchange = (e) => setClockSize(e.target.value);
 });
 
-// Global UI reveal
 ['pointermove', 'pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, showUI));
 document.addEventListener('dblclick', toggleFullscreen);
 
-// Click outside to close
 document.addEventListener('pointerdown', (e) => {
     if (settingsMenu.style.display === 'block' && 
         !settingsMenu.contains(e.target) && 
@@ -293,9 +241,6 @@ document.addEventListener('pointerdown', (e) => {
     }
 });
 
-// ==========================================
-// 7. CLOCK ENGINE
-// ==========================================
 function updateClock() {
     const now = new Date();
     container.classList.toggle('stacked', layoutToggle.checked);
@@ -316,15 +261,13 @@ function updateClock() {
             ? `<div class="stacked-sec">${sStr}</div>` 
             : `<span class="colon">:</span>${sStr}`;
     }
+    
     if (sWrap.innerHTML !== newHTML) sWrap.innerHTML = newHTML;
     
     document.title = `${hStr}:${mStr} | Orbit Clock`;
     updateFavicon();
 }
 
-// ==========================================
-// 8. INITIALIZATION
-// ==========================================
 const init = () => {
     const savedColor = localStorage.getItem('clockColor') || '#2830cc';
     const savedGlow  = localStorage.getItem('clockGlow') || '15';
@@ -341,8 +284,6 @@ const init = () => {
         root.setAttribute('data-theme', 'light');
         themeToggle.checked = true;
     }
-
-    slide1.style.backgroundImage = `url('${curatedImages[0]}')`;
 
     formatToggle.checked = localStorage.getItem('use24H') === 'true';
     secondsToggle.checked = (localStorage.getItem('showSec') ?? 'true') === 'true';

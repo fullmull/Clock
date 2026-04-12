@@ -1,11 +1,8 @@
 :root {
-    /* Default Dark Mode */
     --bg-color: #000;
     --container-bg: rgba(15, 15, 15, 0.85);
     --text-muted: #444;
     --border-color: rgba(255, 255, 255, 0.05);
-    
-    /* Variables */
     --main-color: #2830cc;
     --glow-blur: 15px;
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -13,7 +10,6 @@
     --applied-size: 8rem;
 }
 
-/* Light Mode Overrides */
 [data-theme="light"] {
     --bg-color: #f0f0f0;
     --container-bg: rgba(255, 255, 255, 0.9);
@@ -38,7 +34,6 @@ body {
     touch-action: none;
 }
 
-/* --- CLOCK CONTAINER --- */
 #clock-container {
     display: flex;
     flex-direction: column;
@@ -98,12 +93,11 @@ body {
     to { --angle: 360deg; }
 }
 
-/* --- TIME DISPLAY --- */
 #time {
     font-weight: 800; 
     color: var(--main-color);
     text-shadow: 0 0 var(--glow-blur) var(--main-color);
-    font-size: clamp(2rem, 18vw, var(--applied-size));
+    font-size: min(var(--applied-size), 22vw, 35vh);
     letter-spacing: -3px; 
     z-index: 10;
     cursor: pointer;
@@ -119,8 +113,10 @@ body {
 
 #clock-container.stacked #time { 
     flex-direction: column; 
-    font-size: clamp(2rem, 13vw, var(--applied-size)); 
+    gap: 0.1em;
+    font-size: min(var(--applied-size), 30vw, 23vh); 
 }
+
 #clock-container.stacked .colon { display: none; }
 
 #h, #m { 
@@ -130,6 +126,15 @@ body {
     text-align: center;
     transition: margin 0.5s var(--ease-out);
 }
+
+#clock-container.stacked #h, 
+#clock-container.stacked #m, 
+#clock-container.stacked .stacked-sec,
+#clock-container.stacked.hidden-ui .stacked-sec {
+    margin: 0; 
+    line-height: 0.9;
+}
+
 .colon { opacity: 0.3; transition: opacity 0.5s; font-weight: 300; margin: 0 5px; }
 
 .stacked-sec {
@@ -160,7 +165,6 @@ body {
 #clock-container.no-glow #time { text-shadow: none !important; }
 #clock-container.no-glow #orbit-ring { opacity: 0.2; }
 
-/* --- MAIN CONTROLS --- */
 #fade-controls {
     width: 100%;
     display: flex;
@@ -205,15 +209,13 @@ body {
     background-color: var(--main-color);
     border-color: #fff;
     color: #fff;
-    box-shadow: 0 0 20px var(--main-color);
+    /* Glow removed from here! */
 }
 .size-circle { position: relative; cursor: pointer; }
 .size-circle input { position: absolute; opacity: 0; }
 
-/* --- SETTINGS MENU --- */
 #clock-settings {
     position: fixed;
-    /* REMOVED: Top, Left, and Margins. Javascript will handle placement */
     width: 280px;
     background: #0a0a0a;
     padding: 25px;
@@ -253,7 +255,6 @@ body {
     transition: filter 0.3s;
 }
 
-/* --- TOGGLE SWITCHES --- */
 .switch { position: relative; width: 44px; height: 22px; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; inset: 0; background-color: #111; transition: .4s; border-radius: 20px; border: 1px solid #222; }
@@ -261,7 +262,6 @@ body {
 input:checked + .slider { background-color: var(--main-color); border-color: rgba(255,255,255,0.1); }
 input:checked + .slider:before { transform: translateX(22px); background: #fff; }
 
-/* --- FULLSCREEN SLIDESHOW --- */
 #slideshow-container {
     position: fixed;
     inset: 0;
@@ -286,3 +286,18 @@ input:checked + .slider:before { transform: translateX(22px); background: #fff; 
     transition: opacity 1.5s ease;
 }
 body.slideshow-active #slideshow-overlay { opacity: 1; }
+
+@media (max-width: 600px) {
+    #clock-container {
+        padding: 1.5rem 2rem; 
+        width: auto;
+    }
+    
+    #time {
+        font-size: min(var(--applied-size), 35vw, 35vh);
+    }
+    
+    #clock-container.stacked #time {
+        font-size: min(var(--applied-size), 75vw, 32vh);
+    }
+}
