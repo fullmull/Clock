@@ -309,12 +309,16 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
 }
 
 .startup-anim {
-    animation: elegantReveal 1.5s var(--ease-out) both;
+    animation: elegantReveal 2s var(--ease-out) both;
     will-change: transform, opacity, filter;
 }
 
 #orbit-ring.startup-anim { animation-delay: 0s; }
-#h.startup-anim { animation-delay: 0.2s; }
-.colon.startup-anim, #m.startup-anim { animation-delay: 0.7s; }
-#s-wrap.startup-anim { animation-delay: 1.2s; }
-#fade-controls.startup-anim { animation-delay: 1.8s; }
+#h.startup-anim { animation-delay: 0.6s; }
+.colon.startup-anim, #m.startup-anim { animation-delay: 1.2s; }
+#s-wrap.startup-anim { animation-delay: 1.8s; }
+#fade-controls.startup-anim { animation-delay: 2.6s; }
+
+#clock-container:not(.has-seconds) #fade-controls.startup-anim {
+    animation-delay: 1.8s;
+}

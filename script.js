@@ -250,6 +250,7 @@ document.addEventListener('pointerdown', (e) => {
 function updateClock() {
     const now = new Date();
     container.classList.toggle('stacked', layoutToggle.checked);
+    container.classList.toggle('has-seconds', secondsToggle.checked);
     
     let h = now.getHours();
     if (!formatToggle.checked) h = h % 12 || 12;
@@ -314,7 +315,7 @@ const init = () => {
         startupElements.forEach(el => {
             if(el) el.classList.remove('startup-anim');
         });
-    }, 4000);
+    }, 5500);
 
     showUI();
 };
