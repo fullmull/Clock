@@ -1,12 +1,12 @@
 export default async function handler(req, res) {
     try {
         const searchVibes = [
-            'dark minimalist architecture texture',
-            'dark abstract gradient',
-            'dark marble liquid metal stone',
-            'astrophotography nebula deep space',
-            'night sky milky way dark universe',
-            'monochrome landscape midnight'
+            'colorful abstract gradient',
+            'minimalist pastel gradient',
+            'vibrant fluid liquid abstract',
+            'colorful nebula deep space',
+            'vibrant galaxy cosmos',
+            'neon light gradient blur'
         ];
 
         const randomVibe = searchVibes[Math.floor(Math.random() * searchVibes.length)];
