@@ -372,9 +372,11 @@ const init = () => {
     updateClock();
     pollGamepad();
 
+    document.body.classList.add('is-loaded');
+
     const colonElem = document.querySelector('.colon');
     const ringElem = document.getElementById('orbit-ring');
-    const startupElements = [ringElem, hElem, colonElem, mElem, sWrap, fadeControls];
+    const startupElements = [ringElem, hElem, colonElem, mElem, sWrap, fadeControls, slideshowContainer];
     
     startupElements.forEach(el => {
         if(el) el.classList.add('startup-anim');

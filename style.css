@@ -35,6 +35,10 @@ body {
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
+body:not(.is-loaded) #clock-container {
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
 #clock-container {
     position: relative;
     display: flex;
@@ -322,6 +326,19 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
     }
 }
 
+@keyframes bgReveal {
+    0% {
+        opacity: 0;
+        transform: scale(1.05) translateZ(0);
+        filter: blur(15px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateZ(0);
+        filter: blur(0px);
+    }
+}
+
 .startup-anim {
     animation: elegantReveal 2s var(--ease-out) both;
     will-change: transform, opacity, filter;
@@ -333,6 +350,16 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
 #s-wrap.startup-anim { animation-delay: 1.8s; }
 #fade-controls.startup-anim { animation-delay: 2.6s; }
 
+#slideshow-container.startup-anim {
+    animation: bgReveal 3s var(--ease-out) both;
+    will-change: transform, opacity, filter;
+    animation-delay: 3.4s;
+}
+
 #clock-container:not(.has-seconds) #fade-controls.startup-anim {
     animation-delay: 1.8s;
+}
+
+body:not(.has-seconds) #slideshow-container.startup-anim {
+    animation-delay: 2.6s;
 }
