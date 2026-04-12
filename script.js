@@ -34,13 +34,14 @@ let isSlideshowActive = false;
 let activeLayer = 1;
 let dynamicImageQueue = [];
 let gamepadLocked = false;
+let appStartTime = Date.now();
+let slideshowRevealed = false;
 
 async function fetchImageBatch() {
     try {
         const response = await fetch('/api/get-images');
         if (!response.ok) throw new Error();
         const data = await response.json();
-        // The Goldilocks URL: Perfectly sharp 2560px width, auto-formatted for web
         dynamicImageQueue = data.map(photo => `${photo.urls.raw}&w=2560&q=80&auto=format`);
     } catch {
         dynamicImageQueue = [];
@@ -164,23 +165,47 @@ async function changeImage() {
     }
     
     const nextImage = dynamicImageQueue.pop();
-    
-    // Preload image to prevent decode-lag during CSS transition
     const preloader = new Image();
     preloader.src = nextImage;
-    preloader.onload = () => {
-        if (activeLayer === 1) {
-            slide2.style.backgroundImage = `url('${nextImage}')`;
-            slide2.style.opacity = 1;
-            slide1.style.opacity = 0;
-            activeLayer = 2;
-        } else {
-            slide1.style.backgroundImage = `url('${nextImage}')`;
-            slide1.style.opacity = 1;
-            slide2.style.opacity = 0;
-            activeLayer = 1;
-        }
-    };
+    
+    try {
+        await preloader.decode();
+    } catch(e) {
+        return changeImage();
+    }
+    
+    if (activeLayer === 1) {
+        slide2.style.zIndex = 1;
+        slide1.style.zIndex = 0;
+        slide2.style.backgroundImage = `url('${nextImage}')`;
+        slide2.style.opacity = 1;
+        
+        setTimeout(() => {
+            if (activeLayer === 2) slide1.style.opacity = 0;
+        }, 2500);
+        activeLayer = 2;
+    } else {
+        slide1.style.zIndex = 1;
+        slide2.style.zIndex = 0;
+        slide1.style.backgroundImage = `url('${nextImage}')`;
+        slide1.style.opacity = 1;
+        
+        setTimeout(() => {
+            if (activeLayer === 1) slide2.style.opacity = 0;
+        }, 2500);
+        activeLayer = 1;
+    }
+
+    if (!slideshowRevealed) {
+        slideshowRevealed = true;
+        const elapsed = Date.now() - appStartTime;
+        const targetDelay = document.body.classList.contains('has-seconds') ? 3400 : 2600;
+        const remainingDelay = Math.max(0, targetDelay - elapsed);
+        
+        setTimeout(() => {
+            slideshowContainer.classList.add('revealed');
+        }, remainingDelay);
+    }
 }
 
 function updateFavicon() {
@@ -349,7 +374,7 @@ const init = () => {
 
     const colonElem = document.querySelector('.colon');
     const ringElem = document.getElementById('orbit-ring');
-    const startupElements = [ringElem, hElem, colonElem, mElem, sWrap, fadeControls, slideshowContainer];
+    const startupElements = [ringElem, hElem, colonElem, mElem, sWrap, fadeControls];
     
     startupElements.forEach(el => {
         if(el) el.classList.add('startup-anim');

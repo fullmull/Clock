@@ -236,6 +236,16 @@ input:checked + .slider:before { transform: translateX(22px); background: #fff; 
     inset: 0;
     z-index: -2;
     background-color: var(--bg-color);
+    opacity: 0;
+    transform: scale(1.05) translateZ(0);
+    filter: blur(15px);
+    transition: opacity 3s ease-out, transform 3s ease-out, filter 3s ease-out;
+    will-change: transform, opacity, filter;
+}
+#slideshow-container.revealed {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+    filter: blur(0px);
 }
 .slide {
     position: absolute;
@@ -247,6 +257,7 @@ input:checked + .slider:before { transform: translateX(22px); background: #fff; 
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     transform: translateZ(0);
+    will-change: opacity;
 }
 #slideshow-overlay {
     position: fixed;
@@ -311,19 +322,6 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
     }
 }
 
-@keyframes bgReveal {
-    0% {
-        opacity: 0;
-        transform: scale(1.05) translateZ(0);
-        filter: blur(15px);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1) translateZ(0);
-        filter: blur(0px);
-    }
-}
-
 .startup-anim {
     animation: elegantReveal 2s var(--ease-out) both;
     will-change: transform, opacity, filter;
@@ -335,16 +333,6 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
 #s-wrap.startup-anim { animation-delay: 1.8s; }
 #fade-controls.startup-anim { animation-delay: 2.6s; }
 
-#slideshow-container.startup-anim {
-    animation: bgReveal 3s var(--ease-out) both;
-    will-change: transform, opacity, filter;
-    animation-delay: 3.4s;
-}
-
 #clock-container:not(.has-seconds) #fade-controls.startup-anim {
     animation-delay: 1.8s;
-}
-
-body:not(.has-seconds) #slideshow-container.startup-anim {
-    animation-delay: 2.6s;
 }
