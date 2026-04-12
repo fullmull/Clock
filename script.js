@@ -36,10 +36,10 @@ let dynamicImageQueue = [];
 async function fetchImageBatch() {
     try {
         const response = await fetch('/api/get-images');
-        if (!response.ok) throw new Error("Backend failed");
+        if (!response.ok) throw new Error();
         const data = await response.json();
         dynamicImageQueue = data.map(photo => photo.urls.regular);
-    } catch (error) {
+    } catch {
         dynamicImageQueue = [];
     }
 }
@@ -69,7 +69,7 @@ const updateRainbowOrbitState = () => {
 
 const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-        root.requestFullscreen().catch(console.error);
+        root.requestFullscreen().catch(() => {});
     } else {
         document.exitFullscreen();
     }
@@ -79,7 +79,6 @@ const showUI = () => {
     container.classList.remove('hidden-ui');
     fadeControls.classList.remove('hidden-ui');
     clearTimeout(fadeTimer);
-    
     fadeTimer = setTimeout(() => {
         if (settingsMenu.style.display !== 'block') {
             container.classList.add('hidden-ui');
@@ -91,10 +90,8 @@ const showUI = () => {
 const centerMenu = () => {
     settingsMenu.style.visibility = 'hidden';
     settingsMenu.style.display = 'block';
-    
-    const x = (window.innerWidth - settingsMenu.offsetWidth) / 2;
-    const y = (window.innerHeight - settingsMenu.offsetHeight) / 2;
-    
+    const x = Math.max(0, (window.innerWidth - settingsMenu.offsetWidth) / 2);
+    const y = Math.max(0, (window.innerHeight - settingsMenu.offsetHeight) / 2);
     settingsMenu.style.left = `${x}px`;
     settingsMenu.style.top = `${y}px`;
     settingsMenu.style.visibility = 'visible';
@@ -116,13 +113,13 @@ header.onpointermove = (e) => {
     settingsMenu.style.top = `${newY}px`;
 };
 
-header.onpointerup = (e) => { 
-    isDragging = false; 
-    header.releasePointerCapture(e.pointerId); 
+header.onpointerup = (e) => {
+    isDragging = false;
+    header.releasePointerCapture(e.pointerId);
 };
 
-document.getElementById('time').onclick = (e) => { 
-    e.stopPropagation(); 
+document.getElementById('time').onclick = (e) => {
+    e.stopPropagation();
     if (settingsMenu.style.display !== 'block') {
         centerMenu();
     } else {
@@ -135,21 +132,27 @@ closeBtn.onclick = () => {
     showUI();
 };
 
+window.addEventListener('resize', () => {
+    if (settingsMenu.style.display === 'block') {
+        const rect = settingsMenu.getBoundingClientRect();
+        let newX = Math.max(0, Math.min(rect.left, window.innerWidth - rect.width));
+        let newY = Math.max(0, Math.min(rect.top, window.innerHeight - rect.height));
+        settingsMenu.style.left = `${newX}px`;
+        settingsMenu.style.top = `${newY}px`;
+    }
+});
+
 async function changeImage() {
     if (!isSlideshowActive) return;
-
     if (dynamicImageQueue.length === 0) {
         await fetchImageBatch();
     }
-
     if (dynamicImageQueue.length === 0) {
         slide1.style.opacity = 0;
         slide2.style.opacity = 0;
-        return; 
+        return;
     }
-
     const nextImage = dynamicImageQueue.pop();
-
     if (activeLayer === 1) {
         slide2.style.backgroundImage = `url('${nextImage}')`;
         slide2.style.opacity = 1;
@@ -166,11 +169,9 @@ async function changeImage() {
 function updateFavicon() {
     ctx.clearRect(0, 0, 32, 32);
     const color = getComputedStyle(root).getPropertyValue('--main-color').trim();
-
     ctx.beginPath();
     ctx.arc(16, 16, 12, 0, Math.PI * 2);
     ctx.lineWidth = 4;
-
     if (rainbowOrbitToggle.checked) {
         const grad = ctx.createConicGradient(0, 16, 16);
         grad.addColorStop(0, "red"); grad.addColorStop(0.2, "yellow");
@@ -180,21 +181,19 @@ function updateFavicon() {
     } else {
         ctx.strokeStyle = color;
     }
-
     ctx.stroke();
     favicon.href = canvas.toDataURL('image/png');
 }
 
 slideshowToggle.addEventListener('change', async () => {
     isSlideshowActive = slideshowToggle.checked;
-    
     if (isSlideshowActive) {
         document.body.classList.add('slideshow-active');
         if (dynamicImageQueue.length === 0) {
             await fetchImageBatch();
         }
-        changeImage(); 
-        slideshowInterval = setInterval(changeImage, 20000); 
+        changeImage();
+        slideshowInterval = setInterval(changeImage, 20000);
     } else {
         document.body.classList.remove('slideshow-active');
         clearInterval(slideshowInterval);
@@ -233,8 +232,8 @@ document.querySelectorAll('input[name="size-option"]').forEach(radio => {
 document.addEventListener('dblclick', toggleFullscreen);
 
 document.addEventListener('pointerdown', (e) => {
-    if (settingsMenu.style.display === 'block' && 
-        !settingsMenu.contains(e.target) && 
+    if (settingsMenu.style.display === 'block' &&
+        !settingsMenu.contains(e.target) &&
         !document.getElementById('time').contains(e.target)) {
         settingsMenu.style.display = 'none';
         showUI();
@@ -244,10 +243,8 @@ document.addEventListener('pointerdown', (e) => {
 function updateClock() {
     const now = new Date();
     container.classList.toggle('stacked', layoutToggle.checked);
-    
     let h = now.getHours();
     if (!formatToggle.checked) h = h % 12 || 12;
-    
     const hStr = h.toString().padStart(2, '0');
     const mStr = now.getMinutes().toString().padStart(2, '0');
     const sStr = now.getSeconds().toString().padStart(2, '0');
@@ -257,13 +254,12 @@ function updateClock() {
 
     let newHTML = "";
     if (secondsToggle.checked) {
-        newHTML = layoutToggle.checked 
-            ? `<div class="stacked-sec">${sStr}</div>` 
+        newHTML = layoutToggle.checked
+            ? `<div class="stacked-sec">${sStr}</div>`
             : `<span class="colon">:</span>${sStr}`;
     }
-    
     if (sWrap.innerHTML !== newHTML) sWrap.innerHTML = newHTML;
-    
+
     document.title = `${hStr}:${mStr} | Orbit Clock`;
     updateFavicon();
 }
