@@ -33,6 +33,7 @@ let slideshowInterval;
 let isSlideshowActive = false;
 let activeLayer = 1;
 let dynamicImageQueue = [];
+let gamepadLocked = false;
 
 async function fetchImageBatch() {
     try {
@@ -193,6 +194,23 @@ function updateFavicon() {
     favicon.href = canvas.toDataURL('image/png');
 }
 
+const pollGamepad = () => {
+    const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+    let pressed = false;
+    for (let gp of gamepads) {
+        if (gp && gp.buttons[2] && gp.buttons[2].pressed) {
+            pressed = true;
+        }
+    }
+    if (pressed && !gamepadLocked) {
+        toggleFullscreen();
+        gamepadLocked = true;
+    } else if (!pressed) {
+        gamepadLocked = false;
+    }
+    requestAnimationFrame(pollGamepad);
+};
+
 slideshowToggle.addEventListener('change', async () => {
     isSlideshowActive = slideshowToggle.checked;
     localStorage.setItem('useSlideshow', isSlideshowActive);
@@ -238,8 +256,13 @@ document.querySelectorAll('input[name="size-option"]').forEach(radio => {
     radio.onchange = (e) => setClockSize(e.target.value);
 });
 
-['pointermove', 'pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, showUI));
+['pointermove', 'pointerdown'].forEach(ev => document.addEventListener(ev, showUI));
 document.addEventListener('dblclick', toggleFullscreen);
+
+document.addEventListener('keydown', (e) => {
+    showUI();
+    if (e.key.toLowerCase() === 'f') toggleFullscreen();
+});
 
 document.addEventListener('pointerdown', (e) => {
     if (settingsMenu.style.display === 'block' &&
@@ -314,6 +337,7 @@ const init = () => {
     updateGlowState();
     updateRainbowOrbitState();
     updateClock();
+    pollGamepad();
 
     const colonElem = document.querySelector('.colon');
     const ringElem = document.getElementById('orbit-ring');
