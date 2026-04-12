@@ -270,3 +270,27 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
         font-size: calc(var(--size-scale) * min(65vw, 18dvh));
     }
 }
+
+@media (max-height: 500px) {
+    #clock-container {
+        padding: 1rem 2rem;
+    }
+    #time {
+        font-size: calc(var(--size-scale) * min(20vw, 22dvh));
+    }
+    #clock-container.has-seconds:not(.stacked) #time {
+        font-size: calc(var(--size-scale) * min(10vw, 22dvh));
+    }
+    #clock-container.stacked #time {
+        font-size: calc(var(--size-scale) * min(30vw, 12dvh));
+    }
+    #fade-controls {
+        margin-top: 15px;
+    }
+    .controls-divider {
+        padding-top: 15px;
+        margin-top: 15px;
+        padding-bottom: 5px;
+    }
+    .toggle-grid { gap: 8px 20px; }
+}
