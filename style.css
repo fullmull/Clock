@@ -29,6 +29,10 @@ body {
     color: #eee;
     overflow: hidden;
     touch-action: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 #clock-container {
     position: relative;
@@ -52,7 +56,7 @@ body {
     inset: 0;
     padding: 4px;
     border-radius: 40px;
-    background: conic-gradient(from var(--angle), transparent 50%, var(--main-color));
+    background: conic-gradient(from var(--angle), transparent 50%, var(--main-color) 95%, transparent 100%);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -219,6 +223,21 @@ body {
 .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background: #333; transition: .4s; border-radius: 50%; }
 input:checked + .slider { background-color: var(--main-color); border-color: rgba(255,255,255,0.1); }
 input:checked + .slider:before { transform: translateX(22px); background: #fff; }
+
+[data-theme="light"] .slider { background-color: #e0e0e0; border-color: #ccc; }
+[data-theme="light"] .slider:before { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+
+#format-toggle + .slider,
+#layout-toggle + .slider {
+    background-color: var(--main-color);
+    border-color: rgba(255,255,255,0.1);
+}
+#format-toggle + .slider:before,
+#layout-toggle + .slider:before {
+    background: #fff;
+    box-shadow: none;
+}
+
 #slideshow-container {
     position: fixed;
     inset: 0;
@@ -242,3 +261,15 @@ input:checked + .slider:before { transform: translateX(22px); background: #fff; 
     transition: opacity 1.5s ease;
 }
 body.slideshow-active #slideshow-overlay { opacity: 1; }
+@media (max-width: 600px) {
+    #clock-container {
+        padding: 1.5rem 2rem; 
+        width: auto;
+    }
+    #time {
+        font-size: min(var(--applied-size), 35vw, 35vh);
+    }
+    #clock-container.stacked #time {
+        font-size: min(var(--applied-size), 75vw, 32vh);
+    }
+}
