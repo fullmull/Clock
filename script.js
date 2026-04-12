@@ -16,6 +16,7 @@ const layoutToggle = document.getElementById('layout-toggle');
 const themeToggle = document.getElementById('theme-toggle');
 const rainbowOrbitToggle = document.getElementById('rainbow-orbit-toggle');
 const slideshowToggle = document.getElementById('slideshow-toggle');
+const slideshowContainer = document.getElementById('slideshow-container');
 const slide1 = document.getElementById('slide-1');
 const slide2 = document.getElementById('slide-2');
 const favicon = document.getElementById('favicon');
@@ -194,6 +195,8 @@ function updateFavicon() {
 
 slideshowToggle.addEventListener('change', async () => {
     isSlideshowActive = slideshowToggle.checked;
+    localStorage.setItem('useSlideshow', isSlideshowActive);
+    
     if (isSlideshowActive) {
         document.body.classList.add('slideshow-active');
         if (dynamicImageQueue.length === 0) {
@@ -251,6 +254,7 @@ function updateClock() {
     const now = new Date();
     container.classList.toggle('stacked', layoutToggle.checked);
     container.classList.toggle('has-seconds', secondsToggle.checked);
+    document.body.classList.toggle('has-seconds', secondsToggle.checked);
     
     let h = now.getHours();
     if (!formatToggle.checked) h = h % 12 || 12;
@@ -295,9 +299,17 @@ const init = () => {
     glowToggle.checked = (localStorage.getItem('useGlow') ?? 'true') === 'true';
     layoutToggle.checked = localStorage.getItem('isStacked') === 'true';
     rainbowOrbitToggle.checked = localStorage.getItem('useRainbowOrbit') === 'true';
+    slideshowToggle.checked = localStorage.getItem('useSlideshow') === 'true';
 
     const activeRadio = document.querySelector(`input[value="${savedSize}"]`);
     if (activeRadio) activeRadio.checked = true;
+
+    if (slideshowToggle.checked) {
+        isSlideshowActive = true;
+        document.body.classList.add('slideshow-active');
+        fetchImageBatch().then(() => changeImage());
+        slideshowInterval = setInterval(changeImage, 20000);
+    }
 
     updateGlowState();
     updateRainbowOrbitState();
@@ -305,7 +317,7 @@ const init = () => {
 
     const colonElem = document.querySelector('.colon');
     const ringElem = document.getElementById('orbit-ring');
-    const startupElements = [ringElem, hElem, colonElem, mElem, sWrap, fadeControls];
+    const startupElements = [ringElem, hElem, colonElem, mElem, sWrap, fadeControls, slideshowContainer];
     
     startupElements.forEach(el => {
         if(el) el.classList.add('startup-anim');
@@ -315,7 +327,7 @@ const init = () => {
         startupElements.forEach(el => {
             if(el) el.classList.remove('startup-anim');
         });
-    }, 5500);
+    }, 6500);
 
     showUI();
 };
