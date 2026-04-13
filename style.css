@@ -48,9 +48,13 @@ input.gp-focus + .slider { box-shadow: 0 0 0 2px var(--container-bg), 0 0 0 4px 
 .switch input:focus-visible, .size-circle input:focus-visible { outline: none !important; }
 .switch input.gp-focus, .size-circle input.gp-focus { outline: none !important; }
 
-#time:focus-visible, 
-#time.gp-focus { 
-    outline: none !important; 
+#time:focus-visible { outline-color: var(--main-color); outline-offset: 12px; }
+#time.gp-focus { outline-color: var(--main-color); outline-offset: 12px; }
+
+#clock-container.hidden-ui #time.gp-focus,
+#clock-container.hidden-ui #time:focus-visible {
+    outline-color: transparent !important;
+    outline-offset: 4px !important;
 }
 
 body.gamepad-mode #color-row-native { display: none !important; }
@@ -75,12 +79,7 @@ body:not(.is-loaded) #clock-container {
     backdrop-filter: blur(15px);
     border-radius: 40px;
     z-index: 1;
-    transition: var(--transition-main), box-shadow 0.3s ease;
-}
-
-#clock-container:has(#time.gp-focus),
-#clock-container:has(#time:focus-visible) {
-    box-shadow: 0 0 0 2px var(--bg-color), 0 0 0 6px var(--main-color) !important;
+    transition: var(--transition-main);
 }
 
 #orbit-ring {
@@ -120,7 +119,10 @@ body:not(.is-loaded) #clock-container {
     z-index: 10;
     cursor: pointer;
     user-select: none;
-    transition: color 0.8s var(--ease-out), text-shadow 0.8s var(--ease-out), font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), margin 0.8s var(--ease-out);
+    outline: 3px solid transparent;
+    outline-offset: 4px;
+    border-radius: 20px;
+    transition: color 0.8s var(--ease-out), text-shadow 0.8s var(--ease-out), font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), margin 0.8s var(--ease-out), outline-color 0.4s ease, outline-offset 0.4s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -187,11 +189,13 @@ body:not(.is-loaded) #clock-container {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    max-width: 4em;
-    max-height: 1.5em;
+    max-width: 5em;
+    max-height: 2em;
     opacity: 1;
     overflow: hidden;
-    transition: max-width 0.6s var(--ease-out), max-height 0.6s var(--ease-out), opacity 0.6s var(--ease-out);
+    padding: 0.5em;
+    margin: -0.5em;
+    transition: max-width 0.6s var(--ease-out), max-height 0.6s var(--ease-out), opacity 0.6s var(--ease-out), padding 0.6s var(--ease-out), margin 0.6s var(--ease-out);
     white-space: nowrap;
 }
 
@@ -199,6 +203,8 @@ body:not(.is-loaded) #clock-container {
     max-width: 0px;
     max-height: 0px;
     opacity: 0;
+    padding: 0;
+    margin: 0;
 }
 
 #clock-container.stacked:not(.has-seconds) #time {
@@ -246,6 +252,7 @@ body:not(.is-loaded) #clock-container {
     background-color: var(--main-color);
     border-color: #fff;
     color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
 }
 .size-circle { position: relative; cursor: pointer; }
 .size-circle input { position: absolute; opacity: 0; width: 100%; height: 100%; left: 0; top: 0; margin: 0; cursor: pointer; z-index: 2; }
@@ -286,6 +293,7 @@ body:not(.is-loaded) #clock-container {
     width: 100%;
     background: var(--main-color);
     border: none; color: white;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
     padding: 12px; border-radius: 12px;
     margin-top: 15px; font-weight: 800;
     cursor: pointer; font-family: 'Montserrat';
@@ -296,7 +304,7 @@ body:not(.is-loaded) #clock-container {
 .slider { position: absolute; inset: 0; background-color: #111; transition: .4s; border-radius: 20px; border: 1px solid #222; }
 .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background: #333; transition: .4s; border-radius: 50%; }
 input:checked + .slider { background-color: var(--main-color); border-color: rgba(255,255,255,0.1); }
-input:checked + .slider:before { transform: translateX(22px); background: #fff; }
+input:checked + .slider:before { transform: translateX(22px); background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.6); }
 [data-theme="light"] .slider { background-color: #e0e0e0; border-color: #ccc; }
 [data-theme="light"] .slider:before { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
 #format-toggle + .slider,
@@ -307,7 +315,7 @@ input:checked + .slider:before { transform: translateX(22px); background: #fff; 
 #format-toggle + .slider:before,
 #layout-toggle + .slider:before {
     background: #fff;
-    box-shadow: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.6);
 }
 #slideshow-container {
     position: fixed;
