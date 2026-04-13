@@ -48,12 +48,13 @@ input.gp-focus + .slider { box-shadow: 0 0 0 2px var(--container-bg), 0 0 0 4px 
 .switch input:focus-visible, .size-circle input:focus-visible { outline: none !important; }
 .switch input.gp-focus, .size-circle input.gp-focus { outline: none !important; }
 
-#time:focus-visible { outline: 2px solid var(--main-color); outline-offset: 15px; border-radius: 20px; }
-#time.gp-focus { outline: 2px solid var(--main-color); outline-offset: 15px; border-radius: 20px; }
+#time:focus-visible { outline-color: var(--main-color); outline-offset: 12px; }
+#time.gp-focus { outline-color: var(--main-color); outline-offset: 12px; }
 
 #clock-container.hidden-ui #time.gp-focus,
 #clock-container.hidden-ui #time:focus-visible {
-    outline: none !important;
+    outline-color: transparent !important;
+    outline-offset: 4px !important;
 }
 
 body.gamepad-mode #color-row-native { display: none !important; }
@@ -116,7 +117,10 @@ body:not(.is-loaded) #clock-container {
     z-index: 10;
     cursor: pointer;
     user-select: none;
-    transition: color 0.8s var(--ease-out), text-shadow 0.8s var(--ease-out), font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out);
+    outline: 3px solid transparent;
+    outline-offset: 4px;
+    border-radius: 20px;
+    transition: color 0.8s var(--ease-out), text-shadow 0.8s var(--ease-out), font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), outline-color 0.4s ease, outline-offset 0.4s ease;
     display: flex;
     align-items: center;
     justify-content: center;
