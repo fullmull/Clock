@@ -41,7 +41,6 @@ let slideshowRevealed = false;
 let gpNavCooldown = 0;
 let gpState = { a: false, b: false, x: false, y: false };
 let lastMenuFocus = document.getElementById('theme-toggle');
-let lastMainFocus = document.getElementById('time');
 let isGamepadMode = false;
 
 function hslToHex(h, s, l) {
@@ -359,7 +358,6 @@ const pollGamepad = () => {
             if (settingsMenu.style.display !== 'block') {
                 centerMenu();
                 setTimeout(() => {
-                    document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
                     const target = (lastMenuFocus && lastMenuFocus.offsetParent !== null) ? lastMenuFocus : document.getElementById('theme-toggle');
                     target.focus();
                     if(isGamepadMode) target.classList.add('gp-focus');
@@ -367,8 +365,7 @@ const pollGamepad = () => {
             } else {
                 settingsMenu.style.display = 'none';
                 showUI();
-                document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
-                const t = (lastMainFocus && lastMainFocus.offsetParent !== null) ? lastMainFocus : document.getElementById('time');
+                const t = document.getElementById('time');
                 t.focus();
                 if(isGamepadMode) t.classList.add('gp-focus');
             }
@@ -381,8 +378,7 @@ const pollGamepad = () => {
             if (settingsMenu.style.display === 'block') {
                 settingsMenu.style.display = 'none';
                 showUI();
-                document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
-                const t = (lastMainFocus && lastMainFocus.offsetParent !== null) ? lastMainFocus : document.getElementById('time');
+                const t = document.getElementById('time');
                 t.focus();
                 if(isGamepadMode) t.classList.add('gp-focus');
             }
@@ -427,11 +423,7 @@ const pollGamepad = () => {
                     if (!current || !focusables.includes(current)) {
                         focusables[0].focus();
                         focusables[0].classList.add('gp-focus');
-                        if (settingsMenu.contains(focusables[0])) {
-                            lastMenuFocus = focusables[0];
-                        } else {
-                            lastMainFocus = focusables[0];
-                        }
+                        if (settingsMenu.contains(focusables[0])) lastMenuFocus = focusables[0];
                         gpNavCooldown = Date.now() + 200;
                     } else {
                         const r1 = current.getBoundingClientRect();
@@ -465,11 +457,7 @@ const pollGamepad = () => {
                             document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
                             best.focus();
                             best.classList.add('gp-focus');
-                            if (settingsMenu.contains(best)) {
-                                lastMenuFocus = best;
-                            } else {
-                                lastMainFocus = best;
-                            }
+                            if (settingsMenu.contains(best)) lastMenuFocus = best;
                             gpNavCooldown = Date.now() + 200;
                         }
                     }
@@ -521,9 +509,10 @@ themeToggle.onchange = () => {
 colorPicker.addEventListener('input', updateColorFromNative);
 
 glowSlider.oninput = (e) => applyGlow(e.target.value);
-formatToggle.onchange = () => localStorage.setItem('use24H', formatToggle.checked);
-secondsToggle.onchange = () => localStorage.setItem('showSec', secondsToggle.checked);
-layoutToggle.onchange = () => localStorage.setItem('isStacked', layoutToggle.checked);
+
+formatToggle.onchange = () => { localStorage.setItem('use24H', formatToggle.checked); updateClock(); };
+secondsToggle.onchange = () => { localStorage.setItem('showSec', secondsToggle.checked); updateClock(); };
+layoutToggle.onchange = () => { localStorage.setItem('isStacked', layoutToggle.checked); updateClock(); };
 
 glowToggle.onchange = () => {
     localStorage.setItem('useGlow', glowToggle.checked);

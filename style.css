@@ -48,13 +48,9 @@ input.gp-focus + .slider { box-shadow: 0 0 0 2px var(--container-bg), 0 0 0 4px 
 .switch input:focus-visible, .size-circle input:focus-visible { outline: none !important; }
 .switch input.gp-focus, .size-circle input.gp-focus { outline: none !important; }
 
-#time:focus-visible { outline-color: var(--main-color); outline-offset: 12px; }
-#time.gp-focus { outline-color: var(--main-color); outline-offset: 12px; }
-
-#clock-container.hidden-ui #time.gp-focus,
-#clock-container.hidden-ui #time:focus-visible {
-    outline-color: transparent !important;
-    outline-offset: 4px !important;
+#time:focus-visible, 
+#time.gp-focus { 
+    outline: none !important; 
 }
 
 body.gamepad-mode #color-row-native { display: none !important; }
@@ -79,8 +75,14 @@ body:not(.is-loaded) #clock-container {
     backdrop-filter: blur(15px);
     border-radius: 40px;
     z-index: 1;
-    transition: var(--transition-main);
+    transition: var(--transition-main), box-shadow 0.3s ease;
 }
+
+#clock-container:has(#time.gp-focus),
+#clock-container:has(#time:focus-visible) {
+    box-shadow: 0 0 0 2px var(--bg-color), 0 0 0 6px var(--main-color) !important;
+}
+
 #orbit-ring {
     position: absolute;
     inset: -1px;
@@ -108,6 +110,7 @@ body:not(.is-loaded) #clock-container {
 @keyframes rotateOrbit {
     to { --angle: 360deg; }
 }
+
 #time {
     font-weight: 800;
     color: var(--main-color);
@@ -117,10 +120,7 @@ body:not(.is-loaded) #clock-container {
     z-index: 10;
     cursor: pointer;
     user-select: none;
-    outline: 3px solid transparent;
-    outline-offset: 4px;
-    border-radius: 20px;
-    transition: color 0.8s var(--ease-out), text-shadow 0.8s var(--ease-out), font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), outline-color 0.4s ease, outline-offset 0.4s ease;
+    transition: color 0.8s var(--ease-out), text-shadow 0.8s var(--ease-out), font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), margin 0.8s var(--ease-out);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -139,6 +139,20 @@ body:not(.is-loaded) #clock-container {
 #clock-container.stacked.has-seconds #time {
     font-size: calc(var(--size-scale) * min(35vw, 16dvh));
 }
+
+#clock-container.hidden-ui #time {
+    font-size: calc(var(--size-scale) * min(25vw, 35dvh));
+}
+#clock-container.hidden-ui.has-seconds:not(.stacked) #time {
+    font-size: calc(var(--size-scale) * min(16vw, 35dvh));
+}
+#clock-container.hidden-ui.stacked #time {
+    font-size: calc(var(--size-scale) * min(45vw, 35dvh));
+}
+#clock-container.hidden-ui.stacked.has-seconds #time {
+    font-size: calc(var(--size-scale) * min(40vw, 24dvh));
+}
+
 #clock-container.stacked .colon { display: none; }
 #h, #m {
     margin: -0.02em 0;
@@ -153,7 +167,9 @@ body:not(.is-loaded) #clock-container {
     margin: 0;
     line-height: 0.85;
 }
-.colon { opacity: 0.3; transition: opacity 0.5s; font-weight: 300; margin: 0 5px; }
+
+.colon { opacity: 0.3; transition: opacity 0.5s; font-weight: 300; margin: 0 0.05em; }
+
 .stacked-sec {
     font-size: 1em;
     font-weight: 800;
@@ -166,6 +182,29 @@ body:not(.is-loaded) #clock-container {
     margin: -0.02em 0;
     transition: all 0.5s var(--ease-out);
 }
+
+#s-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 4em;
+    max-height: 1.5em;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-width 0.6s var(--ease-out), max-height 0.6s var(--ease-out), opacity 0.6s var(--ease-out);
+    white-space: nowrap;
+}
+
+#clock-container:not(.has-seconds) #s-wrap {
+    max-width: 0px;
+    max-height: 0px;
+    opacity: 0;
+}
+
+#clock-container.stacked:not(.has-seconds) #time {
+    margin-bottom: -0.05em;
+}
+
 #clock-container.no-glow #time { text-shadow: none !important; }
 #clock-container.no-glow #orbit-ring { opacity: 0.2; }
 #fade-controls {
@@ -240,8 +279,8 @@ body:not(.is-loaded) #clock-container {
 }
 #color-picker::-webkit-color-swatch { border: 2px solid #fff; border-radius: 50%; }
 
-.c-slider { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 4px; outline: none; transition: box-shadow 0.2s; }
-.c-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+.c-slider { appearance: none; -webkit-appearance: none; width: 100%; height: 8px; border-radius: 4px; outline: none; transition: box-shadow 0.2s; }
+.c-slider::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
 
 #close-settings-btn {
     width: 100%;
@@ -317,13 +356,26 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
         font-size: calc(var(--size-scale) * min(24vw, 22dvh));
     }
     #clock-container.has-seconds:not(.stacked) #time {
-        font-size: calc(var(--size-scale) * min(15vw, 22dvh));
+        font-size: calc(var(--size-scale) * min(13vw, 22dvh));
     }
     #clock-container.stacked #time {
         font-size: calc(var(--size-scale) * min(65vw, 18dvh));
     }
     #clock-container.stacked.has-seconds #time {
         font-size: calc(var(--size-scale) * min(60vw, 14dvh));
+    }
+
+    #clock-container.hidden-ui #time {
+        font-size: calc(var(--size-scale) * min(25vw, 28dvh));
+    }
+    #clock-container.hidden-ui.has-seconds:not(.stacked) #time {
+        font-size: calc(var(--size-scale) * min(18vw, 28dvh));
+    }
+    #clock-container.hidden-ui.stacked #time {
+        font-size: calc(var(--size-scale) * min(65vw, 25dvh));
+    }
+    #clock-container.hidden-ui.stacked.has-seconds #time {
+        font-size: calc(var(--size-scale) * min(60vw, 20dvh));
     }
 }
 
@@ -338,20 +390,71 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
         font-size: calc(var(--size-scale) * min(10vw, 22dvh));
     }
     #clock-container.stacked #time {
-        font-size: calc(var(--size-scale) * min(30vw, 12dvh));
+        font-size: calc(var(--size-scale) * min(30vw, 17dvh));
     }
     #clock-container.stacked.has-seconds #time {
-        font-size: calc(var(--size-scale) * min(25vw, 9dvh));
+        font-size: calc(var(--size-scale) * min(25vw, 13dvh));
     }
+
+    #clock-container.hidden-ui #time {
+        font-size: calc(var(--size-scale) * min(25vw, 35dvh));
+    }
+    #clock-container.hidden-ui.has-seconds:not(.stacked) #time {
+        font-size: calc(var(--size-scale) * min(15vw, 35dvh));
+    }
+    #clock-container.hidden-ui.stacked #time {
+        font-size: calc(var(--size-scale) * min(35vw, 35dvh));
+    }
+    #clock-container.hidden-ui.stacked.has-seconds #time {
+        font-size: calc(var(--size-scale) * min(30vw, 26dvh));
+    }
+
     #fade-controls {
-        margin-top: 15px;
+        margin-top: 10px;
     }
     .controls-divider {
-        padding-top: 15px;
-        margin-top: 15px;
+        padding-top: 10px;
+        margin-top: 10px;
         padding-bottom: 5px;
     }
-    .toggle-grid { gap: 8px 20px; }
+    .toggle-grid { gap: 6px 20px; }
+    .checkmark { height: 36px; width: 36px; font-size: 0.75rem; }
+
+    #clock-settings {
+        width: 250px;
+        padding: 15px 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    #settings-header {
+        margin-bottom: 10px;
+    }
+    .setting-row {
+        margin: 8px 0;
+    }
+    .controls-divider[style] {
+        margin: 8px 0 !important;
+    }
+    #color-row-gp > span {
+        margin-bottom: 8px !important;
+    }
+    #color-row-gp > div {
+        gap: 8px !important;
+    }
+    .setting-row[style*="margin-top"] {
+        margin-top: 12px !important;
+    }
+    #close-settings-btn {
+        margin-top: 10px;
+        padding: 8px;
+    }
+    .c-slider {
+        height: 6px;
+    }
+    .c-slider::-webkit-slider-thumb {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 @keyframes elegantReveal {
