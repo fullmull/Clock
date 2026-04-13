@@ -8,6 +8,9 @@ const settingsMenu = document.getElementById('clock-settings');
 const header = document.getElementById('settings-header');
 const closeBtn = document.getElementById('close-settings-btn');
 const colorPicker = document.getElementById('color-picker');
+const hueSlider = document.getElementById('hue-slider');
+const satSlider = document.getElementById('sat-slider');
+const litSlider = document.getElementById('lit-slider');
 const glowSlider = document.getElementById('glow-slider');
 const formatToggle = document.getElementById('format-toggle');
 const secondsToggle = document.getElementById('seconds-toggle');
@@ -33,9 +36,50 @@ let slideshowInterval;
 let isSlideshowActive = false;
 let activeLayer = 1;
 let dynamicImageQueue = [];
-let gamepadLocked = false;
 let appStartTime = Date.now();
 let slideshowRevealed = false;
+let gpNavCooldown = 0;
+let gpState = { a: false, b: false, x: false, y: false };
+let lastMenuFocus = document.getElementById('theme-toggle');
+let lastMainFocus = document.getElementById('time');
+let isGamepadMode = false;
+
+function hslToHex(h, s, l) {
+    l /= 100;
+    const a = s * Math.min(l, 1 - l) / 100;
+    const f = n => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+function hexToHsl(H) {
+    let r = 0, g = 0, b = 0;
+    if (H.length == 4) {
+        r = "0x" + H[1] + H[1];
+        g = "0x" + H[2] + H[2];
+        b = "0x" + H[3] + H[3];
+    } else if (H.length == 7) {
+        r = "0x" + H[1] + H[2];
+        g = "0x" + H[3] + H[4];
+        b = "0x" + H[5] + H[6];
+    }
+    r /= 255; g /= 255; b /= 255;
+    let cmin = Math.min(r,g,b), cmax = Math.max(r,g,b), delta = cmax - cmin, h = 0, s = 0, l = 0;
+    if (delta == 0) h = 0;
+    else if (cmax == r) h = ((g - b) / delta) % 6;
+    else if (cmax == g) h = (b - r) / delta + 2;
+    else h = (r - g) / delta + 4;
+    h = Math.round(h * 60);
+    if (h < 0) h += 360;
+    l = (cmax + cmin) / 2;
+    s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+    s = +(s * 100).toFixed(1);
+    l = +(l * 100).toFixed(1);
+    return [h, s, l];
+}
 
 async function fetchImageBatch() {
     try {
@@ -48,9 +92,35 @@ async function fetchImageBatch() {
     }
 }
 
-const applyColor = (color) => {
-    root.style.setProperty('--main-color', color);
-    localStorage.setItem('clockColor', color);
+const updateColorFromGamepad = () => {
+    const h = hueSlider.value;
+    const s = satSlider.value;
+    const l = litSlider.value;
+    const hex = hslToHex(h, s, l);
+    
+    colorPicker.value = hex;
+    root.style.setProperty('--main-color', hex);
+    localStorage.setItem('clockColor', hex);
+
+    hueSlider.style.background = `linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)`;
+    satSlider.style.background = `linear-gradient(to right, hsl(${h}, 0%, ${l}%), hsl(${h}, 100%, ${l}%))`;
+    litSlider.style.background = `linear-gradient(to right, #000, hsl(${h}, ${s}%, 50%), #fff)`;
+};
+
+const updateColorFromNative = (e) => {
+    const hex = e.target.value;
+    const [h, s, l] = hexToHsl(hex);
+    
+    hueSlider.value = h;
+    satSlider.value = s;
+    litSlider.value = l;
+    
+    root.style.setProperty('--main-color', hex);
+    localStorage.setItem('clockColor', hex);
+
+    hueSlider.style.background = `linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)`;
+    satSlider.style.background = `linear-gradient(to right, hsl(${h}, 0%, ${l}%), hsl(${h}, 100%, ${l}%))`;
+    litSlider.style.background = `linear-gradient(to right, #000, hsl(${h}, ${s}%, 50%), #fff)`;
 };
 
 const applyGlow = (val) => {
@@ -94,6 +164,8 @@ const showUI = () => {
         if (settingsMenu.style.display !== 'block') {
             container.classList.add('hidden-ui');
             fadeControls.classList.add('hidden-ui');
+            document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
+            if (document.activeElement) document.activeElement.blur();
         }
     }, 5000);
 };
@@ -133,6 +205,13 @@ document.getElementById('time').onclick = (e) => {
     e.stopPropagation();
     if (settingsMenu.style.display !== 'block') {
         centerMenu();
+        setTimeout(() => {
+            if(isGamepadMode && lastMenuFocus) {
+                document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
+                lastMenuFocus.focus();
+                lastMenuFocus.classList.add('gp-focus');
+            }
+        }, 10);
     } else {
         settingsMenu.style.display = 'none';
     }
@@ -141,6 +220,10 @@ document.getElementById('time').onclick = (e) => {
 closeBtn.onclick = () => {
     settingsMenu.style.display = 'none';
     showUI();
+    document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
+    const t = (lastMainFocus && lastMainFocus.offsetParent !== null) ? lastMainFocus : document.getElementById('time');
+    t.focus();
+    if(isGamepadMode) t.classList.add('gp-focus');
 };
 
 window.addEventListener('resize', () => {
@@ -229,20 +312,185 @@ function updateFavicon() {
 
 const pollGamepad = () => {
     const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-    let pressed = false;
-    for (let gp of gamepads) {
-        if (gp && gp.buttons[2] && gp.buttons[2].pressed) {
-            pressed = true;
+    const gp = gamepads.find(g => g !== null);
+
+    if (gp) {
+        const btnA = gp.buttons[0]?.pressed;
+        const btnB = gp.buttons[1]?.pressed;
+        const btnX = gp.buttons[2]?.pressed;
+        const btnY = gp.buttons[3]?.pressed;
+        const rtDown = gp.buttons[7]?.pressed || gp.buttons[7]?.value > 0.5;
+        const dUp = gp.buttons[12]?.pressed || gp.axes[1] < -0.5;
+        const dDown = gp.buttons[13]?.pressed || gp.axes[1] > 0.5;
+        const dLeft = gp.buttons[14]?.pressed || gp.axes[0] < -0.5;
+        const dRight = gp.buttons[15]?.pressed || gp.axes[0] > 0.5;
+        const rx = Math.abs(gp.axes[2]) > 0.15 ? gp.axes[2] : 0;
+        const ry = Math.abs(gp.axes[3]) > 0.15 ? gp.axes[3] : 0;
+
+        if (rtDown && settingsMenu.style.display === 'block' && (rx !== 0 || ry !== 0)) {
+            let curX = parseFloat(settingsMenu.style.left) || 0;
+            let curY = parseFloat(settingsMenu.style.top) || 0;
+            let newX = Math.max(0, Math.min(curX + rx * 15, window.innerWidth - settingsMenu.offsetWidth));
+            let newY = Math.max(0, Math.min(curY + ry * 15, window.innerHeight - settingsMenu.offsetHeight));
+            settingsMenu.style.left = `${newX}px`;
+            settingsMenu.style.top = `${newY}px`;
         }
-    }
-    if (pressed && !gamepadLocked) {
-        toggleFullscreen();
-        gamepadLocked = true;
-    } else if (!pressed) {
-        gamepadLocked = false;
+
+        if (btnA || btnB || btnX || btnY || dUp || dDown || dLeft || dRight || rtDown) {
+            showUI();
+            if (!isGamepadMode) {
+                document.body.classList.add('gamepad-mode');
+                isGamepadMode = true;
+                void document.body.offsetHeight; 
+            }
+            if (document.activeElement && document.activeElement.tagName !== 'BODY' && !document.activeElement.classList.contains('gp-focus')) {
+                document.activeElement.classList.add('gp-focus');
+            }
+        }
+
+        if (btnX && !gpState.x) {
+            toggleFullscreen();
+            gpState.x = true;
+        } else if (!btnX) {
+            gpState.x = false;
+        }
+
+        if (btnY && !gpState.y) {
+            if (settingsMenu.style.display !== 'block') {
+                centerMenu();
+                setTimeout(() => {
+                    document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
+                    const target = (lastMenuFocus && lastMenuFocus.offsetParent !== null) ? lastMenuFocus : document.getElementById('theme-toggle');
+                    target.focus();
+                    if(isGamepadMode) target.classList.add('gp-focus');
+                }, 10);
+            } else {
+                settingsMenu.style.display = 'none';
+                showUI();
+                document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
+                const t = (lastMainFocus && lastMainFocus.offsetParent !== null) ? lastMainFocus : document.getElementById('time');
+                t.focus();
+                if(isGamepadMode) t.classList.add('gp-focus');
+            }
+            gpState.y = true;
+        } else if (!btnY) {
+            gpState.y = false;
+        }
+
+        if (btnB && !gpState.b) {
+            if (settingsMenu.style.display === 'block') {
+                settingsMenu.style.display = 'none';
+                showUI();
+                document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
+                const t = (lastMainFocus && lastMainFocus.offsetParent !== null) ? lastMainFocus : document.getElementById('time');
+                t.focus();
+                if(isGamepadMode) t.classList.add('gp-focus');
+            }
+            gpState.b = true;
+        } else if (!btnB) {
+            gpState.b = false;
+        }
+
+        if (btnA && !gpState.a) {
+            if (document.activeElement && document.activeElement.tagName !== 'BODY') {
+                document.activeElement.click();
+            }
+            gpState.a = true;
+        } else if (!btnA) {
+            gpState.a = false;
+        }
+
+        if (Date.now() > gpNavCooldown && (dUp || dDown || dLeft || dRight)) {
+            const isMenuOpen = settingsMenu.style.display === 'block';
+            const focusables = Array.from(document.querySelectorAll('input, button, #time')).filter(el => {
+                if (el.getBoundingClientRect().width === 0) return false;
+                const inMenu = settingsMenu.contains(el);
+                return isMenuOpen ? inMenu : !inMenu;
+            });
+
+            if (focusables.length > 0) {
+                const current = document.activeElement;
+                const isRange = current && current.type === 'range';
+                
+                if (isRange && (dLeft || dRight)) {
+                     let step = (parseFloat(current.max) - parseFloat(current.min)) / 100;
+                     step = Math.max(1, Math.round(step));
+                     let val = parseFloat(current.value);
+                     val += dRight ? step : -step;
+                     current.value = Math.max(current.min, Math.min(current.max, val));
+                     current.dispatchEvent(new Event('input'));
+                     current.classList.add('gp-focus');
+                     gpNavCooldown = Date.now() + 30;
+                } else if (current && current.id === 'time' && (dLeft || dRight)) {
+                     gpNavCooldown = Date.now() + 200;
+                } else {
+                    if (!current || !focusables.includes(current)) {
+                        focusables[0].focus();
+                        focusables[0].classList.add('gp-focus');
+                        if (settingsMenu.contains(focusables[0])) {
+                            lastMenuFocus = focusables[0];
+                        } else {
+                            lastMainFocus = focusables[0];
+                        }
+                        gpNavCooldown = Date.now() + 200;
+                    } else {
+                        const r1 = current.getBoundingClientRect();
+                        const c1 = { x: r1.left + r1.width / 2, y: r1.top + r1.height / 2 };
+                        let best = null;
+                        let bestDist = Infinity;
+
+                        focusables.forEach(el => {
+                            if (el === current) return;
+                            const r2 = el.getBoundingClientRect();
+                            const c2 = { x: r2.left + r2.width / 2, y: r2.top + r2.height / 2 };
+
+                            let valid = false;
+                            if (dUp && c2.y < c1.y - 5) valid = true;
+                            if (dDown && c2.y > c1.y + 5) valid = true;
+                            if (dLeft && c2.x < c1.x - 5) valid = true;
+                            if (dRight && c2.x > c1.x + 5) valid = true;
+
+                            if (valid) {
+                                const dx = Math.abs(c2.x - c1.x);
+                                const dy = Math.abs(c2.y - c1.y);
+                                let score = (dUp || dDown) ? (dy * 10 + dx) : (dy * 100 + dx);
+                                if (score < bestDist) {
+                                    bestDist = score;
+                                    best = el;
+                                }
+                            }
+                        });
+
+                        if (best) {
+                            document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
+                            best.focus();
+                            best.classList.add('gp-focus');
+                            if (settingsMenu.contains(best)) {
+                                lastMenuFocus = best;
+                            } else {
+                                lastMainFocus = best;
+                            }
+                            gpNavCooldown = Date.now() + 200;
+                        }
+                    }
+                }
+            }
+        }
     }
     requestAnimationFrame(pollGamepad);
 };
+
+['pointermove', 'pointerdown'].forEach(ev => document.addEventListener(ev, () => {
+    showUI();
+    if (isGamepadMode) {
+        document.body.classList.remove('gamepad-mode');
+        isGamepadMode = false;
+        if(document.activeElement && document.getElementById('color-row-gp').contains(document.activeElement)) {
+            document.getElementById('color-picker').focus();
+        }
+    }
+    document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
+}));
 
 slideshowToggle.addEventListener('change', async () => {
     isSlideshowActive = slideshowToggle.checked;
@@ -269,7 +517,9 @@ themeToggle.onchange = () => {
     localStorage.setItem('theme', theme);
 };
 
-colorPicker.oninput = (e) => applyColor(e.target.value);
+[hueSlider, satSlider, litSlider].forEach(el => el.addEventListener('input', updateColorFromGamepad));
+colorPicker.addEventListener('input', updateColorFromNative);
+
 glowSlider.oninput = (e) => applyGlow(e.target.value);
 formatToggle.onchange = () => localStorage.setItem('use24H', formatToggle.checked);
 secondsToggle.onchange = () => localStorage.setItem('showSec', secondsToggle.checked);
@@ -289,7 +539,6 @@ document.querySelectorAll('input[name="size-option"]').forEach(radio => {
     radio.onchange = (e) => setClockSize(e.target.value);
 });
 
-['pointermove', 'pointerdown'].forEach(ev => document.addEventListener(ev, showUI));
 document.addEventListener('dblclick', toggleFullscreen);
 
 document.addEventListener('keydown', (e) => {
@@ -339,10 +588,15 @@ const init = () => {
     const savedSize  = localStorage.getItem('clockSize') || '8rem';
     const savedTheme = localStorage.getItem('theme') || 'dark';
 
-    applyColor(savedColor);
+    colorPicker.value = savedColor;
+    const [h, s, l] = hexToHsl(savedColor);
+    hueSlider.value = h;
+    satSlider.value = s;
+    litSlider.value = l;
+    updateColorFromGamepad();
+
     applyGlow(savedGlow);
     setClockSize(savedSize);
-    colorPicker.value = savedColor;
     glowSlider.value = savedGlow;
 
     if (savedTheme === 'light') {
@@ -370,6 +624,8 @@ const init = () => {
     updateGlowState();
     updateRainbowOrbitState();
     updateClock();
+    
+    document.getElementById('time').setAttribute('tabindex', '0');
     pollGamepad();
 
     document.body.classList.add('is-loaded');

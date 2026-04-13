@@ -35,6 +35,30 @@ body {
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--main-color); outline-offset: 4px; border-radius: 8px; }
+.gp-focus { outline: 2px solid var(--main-color) !important; outline-offset: 4px; border-radius: 8px; }
+
+input:focus-visible + .slider { box-shadow: 0 0 0 2px var(--container-bg), 0 0 0 4px var(--main-color); }
+input.gp-focus + .slider { box-shadow: 0 0 0 2px var(--container-bg), 0 0 0 4px var(--main-color); }
+
+.size-circle input:focus-visible ~ .checkmark { box-shadow: 0 0 0 2px var(--container-bg), 0 0 0 4px var(--main-color); }
+.size-circle input.gp-focus ~ .checkmark { box-shadow: 0 0 0 2px var(--container-bg), 0 0 0 4px var(--main-color); }
+
+.switch input:focus-visible, .size-circle input:focus-visible { outline: none !important; }
+.switch input.gp-focus, .size-circle input.gp-focus { outline: none !important; }
+
+#time:focus-visible { outline: 2px solid var(--main-color); outline-offset: 15px; border-radius: 20px; }
+#time.gp-focus { outline: 2px solid var(--main-color); outline-offset: 15px; border-radius: 20px; }
+
+#clock-container.hidden-ui #time.gp-focus,
+#clock-container.hidden-ui #time:focus-visible {
+    outline: none !important;
+}
+
+body.gamepad-mode #color-row-native { display: none !important; }
+body.gamepad-mode #color-row-gp { display: flex !important; }
+
 body:not(.is-loaded) #clock-container {
     opacity: 0 !important;
     visibility: hidden !important;
@@ -48,7 +72,7 @@ body:not(.is-loaded) #clock-container {
     width: fit-content;
     max-width: 92vw;
     max-height: 92dvh;
-    padding: clamp(1rem, 4vmin, 3rem) clamp(1.5rem, 6vmin, 5rem);
+    padding: clamp(1.5rem, 4vmin, 3rem) clamp(2rem, 6vmin, 5rem);
     background: var(--container-bg);
     border: 1px solid var(--border-color);
     backdrop-filter: blur(15px);
@@ -92,7 +116,7 @@ body:not(.is-loaded) #clock-container {
     z-index: 10;
     cursor: pointer;
     user-select: none;
-    transition: var(--transition-main);
+    transition: color 0.8s var(--ease-out), text-shadow 0.8s var(--ease-out), font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -107,6 +131,9 @@ body:not(.is-loaded) #clock-container {
     flex-direction: column;
     gap: 0.05em;
     font-size: calc(var(--size-scale) * min(40vw, 22dvh));
+}
+#clock-container.stacked.has-seconds #time {
+    font-size: calc(var(--size-scale) * min(35vw, 16dvh));
 }
 #clock-container.stacked .colon { display: none; }
 #h, #m {
@@ -157,11 +184,11 @@ body:not(.is-loaded) #clock-container {
     margin-top: 0;
     pointer-events: none;
 }
-.toggle-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px 20px; align-items: center; width: 100%; max-width: 320px; }
+.toggle-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px 20px; align-items: center; width: 100%; max-width: 320px; padding: 6px 0; }
 .label-left { text-align: right; color: var(--text-muted); font-size: 0.7rem; font-weight: bold; min-width: 70px; }
 .label-right { text-align: left; color: var(--text-muted); font-size: 0.7rem; font-weight: bold; min-width: 70px; }
 .controls-divider { width: 100%; max-width: 280px; border-top: 1px solid var(--border-color); padding-top: 25px; padding-bottom: 10px; margin-top: 20px; display: flex; justify-content: center; }
-.size-selector { display: flex; gap: 12px; }
+.size-selector { display: flex; gap: 12px; padding: 6px 0; }
 .checkmark {
     display: flex; align-items: center; justify-content: center;
     height: 42px; width: 42px;
@@ -178,7 +205,7 @@ body:not(.is-loaded) #clock-container {
     color: #fff;
 }
 .size-circle { position: relative; cursor: pointer; }
-.size-circle input { position: absolute; opacity: 0; }
+.size-circle input { position: absolute; opacity: 0; width: 100%; height: 100%; left: 0; top: 0; margin: 0; cursor: pointer; z-index: 2; }
 #clock-settings {
     position: fixed;
     width: 280px;
@@ -201,13 +228,17 @@ body:not(.is-loaded) #clock-container {
 [data-theme="light"] #settings-header { color: #aaa; border-bottom-color: #eee; }
 .setting-row { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; font-size: 0.85rem; color: #888;}
 [data-theme="light"] .setting-row { color: #444; }
+
 #color-picker {
     appearance: none;
     -webkit-appearance: none;
     border: none; width: 40px; height: 40px; background: transparent; cursor: pointer; padding: 0; outline: none;
 }
 #color-picker::-webkit-color-swatch { border: 2px solid #fff; border-radius: 50%; }
-#glow-slider { accent-color: var(--main-color); width: 120px; cursor: pointer; }
+
+.c-slider { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 4px; outline: none; transition: box-shadow 0.2s; }
+.c-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+
 #close-settings-btn {
     width: 100%;
     background: var(--main-color);
@@ -218,7 +249,7 @@ body:not(.is-loaded) #clock-container {
     transition: filter 0.3s;
 }
 .switch { position: relative; width: 44px; height: 22px; }
-.switch input { opacity: 0; width: 0; height: 0; }
+.switch input { position: absolute; opacity: 0; width: 100%; height: 100%; left: 0; top: 0; margin: 0; cursor: pointer; z-index: 2; }
 .slider { position: absolute; inset: 0; background-color: #111; transition: .4s; border-radius: 20px; border: 1px solid #222; }
 .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background: #333; transition: .4s; border-radius: 50%; }
 input:checked + .slider { background-color: var(--main-color); border-color: rgba(255,255,255,0.1); }
@@ -287,6 +318,9 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
     #clock-container.stacked #time {
         font-size: calc(var(--size-scale) * min(65vw, 18dvh));
     }
+    #clock-container.stacked.has-seconds #time {
+        font-size: calc(var(--size-scale) * min(60vw, 14dvh));
+    }
 }
 
 @media (max-height: 500px) {
@@ -301,6 +335,9 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
     }
     #clock-container.stacked #time {
         font-size: calc(var(--size-scale) * min(30vw, 12dvh));
+    }
+    #clock-container.stacked.has-seconds #time {
+        font-size: calc(var(--size-scale) * min(25vw, 9dvh));
     }
     #fade-controls {
         margin-top: 15px;
