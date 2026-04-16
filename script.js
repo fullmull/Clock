@@ -654,5 +654,15 @@ const init = () => {
     showUI();
 };
 
-setInterval(updateClock, 1000);
+let lastSecond = new Date().getSeconds();
+function tick() {
+    const currentSecond = new Date().getSeconds();
+    if (currentSecond !== lastSecond) {
+        lastSecond = currentSecond;
+        updateClock();
+    }
+    requestAnimationFrame(tick);
+}
+
 init();
+requestAnimationFrame(tick);
