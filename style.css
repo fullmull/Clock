@@ -73,20 +73,25 @@ body:not(.is-loaded) #clock-container {
     width: fit-content;
     max-width: 92vw;
     max-height: 92dvh;
-    padding: clamp(1.5rem, 4vmin, 3rem) clamp(2rem, 6vmin, 5rem);
+    --box-radius: 40px;
+    padding: clamp(1.5rem, 4vmin, 3rem) calc(clamp(2rem, 6vmin, 5rem) * var(--size-scale));
     background: var(--container-bg);
     border: 1px solid var(--border-color);
     backdrop-filter: blur(15px);
-    border-radius: 40px;
+    border-radius: var(--box-radius);
     z-index: 1;
-    transition: var(--transition-main);
+    transition: var(--transition-main), box-shadow 0.3s ease;
+}
+
+#clock-container.hidden-ui {
+    padding: calc(clamp(1.5rem, 4vmin, 3rem) * var(--size-scale)) calc(clamp(1.5rem, 4vmin, 3rem) * var(--size-scale));
 }
 
 #orbit-ring {
     position: absolute;
     inset: -1px;
     padding: 4px;
-    border-radius: 40px;
+    border-radius: var(--box-radius);
     background: conic-gradient(from var(--angle), transparent 50%, var(--main-color) 95%, transparent 100%);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -136,9 +141,6 @@ body:not(.is-loaded) #clock-container {
 #clock-container.stacked #time {
     flex-direction: column;
     gap: 0.05em;
-    font-size: calc(var(--size-scale) * min(40vw, 22dvh));
-}
-#clock-container.stacked.has-seconds #time {
     font-size: calc(var(--size-scale) * min(35vw, 16dvh));
 }
 
@@ -149,9 +151,6 @@ body:not(.is-loaded) #clock-container {
     font-size: calc(var(--size-scale) * min(16vw, 35dvh));
 }
 #clock-container.hidden-ui.stacked #time {
-    font-size: calc(var(--size-scale) * min(45vw, 35dvh));
-}
-#clock-container.hidden-ui.stacked.has-seconds #time {
     font-size: calc(var(--size-scale) * min(40vw, 24dvh));
 }
 
@@ -215,6 +214,7 @@ body:not(.is-loaded) #clock-container {
 #clock-container.no-glow #orbit-ring { opacity: 0.2; }
 #fade-controls {
     width: 100%;
+    max-width: 400px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -230,6 +230,7 @@ body:not(.is-loaded) #clock-container {
 #fade-controls.hidden-ui {
     opacity: 0;
     max-height: 0;
+    max-width: 0px;
     margin-top: 0;
     pointer-events: none;
 }
@@ -357,8 +358,12 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
 
 @media (max-width: 600px) {
     #clock-container {
-        padding: 1.5rem 2rem; 
+        --box-radius: 32px;
+        padding: 1.75rem calc(2.5rem * var(--size-scale)); 
         width: auto;
+    }
+    #clock-container.hidden-ui {
+        padding: calc(1.5rem * var(--size-scale)) calc(1.5rem * var(--size-scale));
     }
     #time {
         font-size: calc(var(--size-scale) * min(24vw, 22dvh));
@@ -367,9 +372,6 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
         font-size: calc(var(--size-scale) * min(13vw, 22dvh));
     }
     #clock-container.stacked #time {
-        font-size: calc(var(--size-scale) * min(65vw, 18dvh));
-    }
-    #clock-container.stacked.has-seconds #time {
         font-size: calc(var(--size-scale) * min(60vw, 14dvh));
     }
 
@@ -380,16 +382,17 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
         font-size: calc(var(--size-scale) * min(18vw, 28dvh));
     }
     #clock-container.hidden-ui.stacked #time {
-        font-size: calc(var(--size-scale) * min(65vw, 25dvh));
-    }
-    #clock-container.hidden-ui.stacked.has-seconds #time {
         font-size: calc(var(--size-scale) * min(60vw, 20dvh));
     }
 }
 
 @media (max-height: 500px) {
     #clock-container {
-        padding: 1rem 2rem;
+        --box-radius: 28px;
+        padding: 1rem calc(2.5rem * var(--size-scale));
+    }
+    #clock-container.hidden-ui {
+        padding: calc(1rem * var(--size-scale)) calc(1.5rem * var(--size-scale));
     }
     #time {
         font-size: calc(var(--size-scale) * min(20vw, 22dvh));
@@ -398,9 +401,6 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
         font-size: calc(var(--size-scale) * min(10vw, 22dvh));
     }
     #clock-container.stacked #time {
-        font-size: calc(var(--size-scale) * min(30vw, 17dvh));
-    }
-    #clock-container.stacked.has-seconds #time {
         font-size: calc(var(--size-scale) * min(25vw, 13dvh));
     }
 
@@ -411,9 +411,6 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
         font-size: calc(var(--size-scale) * min(15vw, 35dvh));
     }
     #clock-container.hidden-ui.stacked #time {
-        font-size: calc(var(--size-scale) * min(35vw, 35dvh));
-    }
-    #clock-container.hidden-ui.stacked.has-seconds #time {
         font-size: calc(var(--size-scale) * min(30vw, 26dvh));
     }
 
