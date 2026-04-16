@@ -6,7 +6,8 @@ export default async function handler(req, res) {
             'fluid liquid macro',
             'nebula cosmos deep space',
             'cinematic moody atmospheric',
-            'dark gradient blur'
+            'dark gradient blur',
+            'aesthetic wallpaper'
         ];
 
         const randomVibe = searchVibes[Math.floor(Math.random() * searchVibes.length)];
