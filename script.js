@@ -655,14 +655,30 @@ const init = () => {
 };
 
 let lastSecond = new Date().getSeconds();
+let rafId;
+let fallbackInterval;
+
 function tick() {
     const currentSecond = new Date().getSeconds();
     if (currentSecond !== lastSecond) {
         lastSecond = currentSecond;
         updateClock();
     }
-    requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(tick);
 }
 
+function manageClockSync() {
+    if (document.hidden) {
+        cancelAnimationFrame(rafId);
+        fallbackInterval = setInterval(updateClock, 1000);
+    } else {
+        clearInterval(fallbackInterval);
+        updateClock(); 
+        rafId = requestAnimationFrame(tick);
+    }
+}
+
+document.addEventListener("visibilitychange", manageClockSync);
+
 init();
-requestAnimationFrame(tick);
+manageClockSync();
