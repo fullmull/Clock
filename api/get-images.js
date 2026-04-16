@@ -1,17 +1,20 @@
 export default async function handler(req, res) {
     try {
         const searchVibes = [
-            'abstract dark texture',
-            'minimalist geometric',
-            'fluid liquid macro',
-            'nebula cosmos deep space',
-            'cinematic moody atmospheric',
-            'dark gradient blur',
+            'landscape scenic',
+            'modern architecture',
+            'cityscape night',
+            'minimalist building',
+            'mountain nature',
+            'dark forest',
+            'urban geometry',
             'aesthetic wallpaper'
         ];
 
+        const negativeKeywords = '-person -people -face -portrait -clothes -fashion -woman -man';
         const randomVibe = searchVibes[Math.floor(Math.random() * searchVibes.length)];
-        const query = encodeURIComponent(randomVibe);
+        const query = encodeURIComponent(`${randomVibe} ${negativeKeywords}`);
+        
         const apiKey = process.env.PIXABAY_API_KEY;
         const randomPage = Math.floor(Math.random() * 8) + 1;
         
