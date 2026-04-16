@@ -1,5 +1,7 @@
 export default async function handler(req, res) {
     try {
+        const { orientation = 'vertical' } = req.query;
+        
         const searchVibes = [
             'landscape scenic',
             'modern architecture',
@@ -18,7 +20,7 @@ export default async function handler(req, res) {
         const apiKey = process.env.PIXABAY_API_KEY;
         const randomPage = Math.floor(Math.random() * 8) + 1;
         
-        const response = await fetch(`https://pixabay.com/api/?key=${apiKey}&q=${query}&image_type=photo&orientation=vertical&per_page=30&page=${randomPage}&safesearch=true`);
+        const response = await fetch(`https://pixabay.com/api/?key=${apiKey}&q=${query}&image_type=photo&orientation=${orientation}&per_page=30&page=${randomPage}&safesearch=true`);
         
         if (!response.ok) throw new Error();
         
