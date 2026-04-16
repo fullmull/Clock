@@ -83,7 +83,8 @@ function hexToHsl(H) {
 
 async function fetchImageBatch() {
     try {
-        const response = await fetch('/api/get-images');
+        const orient = window.innerWidth > window.innerHeight ? 'horizontal' : 'vertical';
+        const response = await fetch(`/api/get-images?orientation=${orient}`);
         if (!response.ok) throw new Error();
         const data = await response.json();
         dynamicImageQueue = data.map(photo => photo.largeImageURL);
