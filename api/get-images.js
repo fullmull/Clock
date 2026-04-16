@@ -1,19 +1,20 @@
 export default async function handler(req, res) {
     try {
         const searchVibes = [
-            'colorful abstract gradient',
-            'minimalist pastel gradient',
-            'vibrant fluid liquid abstract',
-            'colorful nebula deep space',
-            'vibrant galaxy cosmos',
-            'neon light gradient blur'
+            'abstract dark texture',
+            'minimalist geometric',
+            'fluid liquid macro',
+            'nebula cosmos deep space',
+            'cinematic moody atmospheric',
+            'dark gradient blur'
         ];
 
         const randomVibe = searchVibes[Math.floor(Math.random() * searchVibes.length)];
         const query = encodeURIComponent(randomVibe);
         const apiKey = process.env.PIXABAY_API_KEY;
+        const randomPage = Math.floor(Math.random() * 8) + 1;
         
-        const response = await fetch(`https://pixabay.com/api/?key=${apiKey}&q=${query}&image_type=photo&orientation=vertical&per_page=30&safesearch=true`);
+        const response = await fetch(`https://pixabay.com/api/?key=${apiKey}&q=${query}&image_type=photo&orientation=vertical&per_page=30&page=${randomPage}&safesearch=true`);
         
         if (!response.ok) throw new Error();
         
