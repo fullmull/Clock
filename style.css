@@ -1,3 +1,9 @@
+@property --main-color {
+    syntax: '<color>';
+    initial-value: #2830cc;
+    inherits: true;
+}
+
 :root {
     --bg-color: #000;
     --container-bg: rgba(15, 15, 15, 0.85);
@@ -8,7 +14,13 @@
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --transition-main: all 0.8s var(--ease-out);
     --size-scale: 0.85;
+    transition: --main-color 0.8s var(--ease-out);
 }
+
+:root.adaptive-sync {
+    transition: --main-color 2.5s ease-in-out;
+}
+
 [data-theme="light"] {
     --bg-color: #f0f0f0;
     --container-bg: rgba(255, 255, 255, 0.9);
@@ -105,7 +117,7 @@ body:not(.is-loaded) #clock-container {
     pointer-events: none;
     z-index: 5;
     will-change: transform;
-    transition: background 0.5s ease;
+    transition: opacity 0.5s ease;
 }
 #clock-container.rainbow-orbit #orbit-ring {
     background: conic-gradient(from var(--angle), transparent 50%, #f00, #ff0, #0f0, #0ff, #00f, #8b00ff, transparent 100%);
@@ -131,7 +143,7 @@ body:not(.is-loaded) #clock-container {
     outline: 3px solid transparent;
     outline-offset: 4px;
     border-radius: 20px;
-    transition: color 0.8s var(--ease-out), text-shadow 0.8s var(--ease-out), font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), margin 0.8s var(--ease-out), outline-color 0.4s ease, outline-offset 0.4s ease;
+    transition: font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), margin 0.8s var(--ease-out), outline-color 0.4s ease, outline-offset 0.4s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -585,14 +597,4 @@ body:not(.has-seconds) #slideshow-container.startup-anim {
     pointer-events: none;
     filter: grayscale(100%);
     transition: var(--transition-main);
-}
-
-body.adaptive-sync #time {
-    transition: color 2.5s ease-in-out, text-shadow 2.5s ease-in-out, font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), margin 0.8s var(--ease-out), outline-color 0.4s ease, outline-offset 0.4s ease;
-}
-body.adaptive-sync .stacked-sec {
-    transition: all 0.5s var(--ease-out), color 2.5s ease-in-out;
-}
-body.adaptive-sync #orbit-ring {
-    transition: background 2.5s ease-in-out;
 }

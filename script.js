@@ -361,6 +361,8 @@ const pollGamepad = () => {
         const rx = gp.axes[2] && Math.abs(gp.axes[2]) > 0.15 ? gp.axes[2] : 0;
         const ry = gp.axes[3] && Math.abs(gp.axes[3]) > 0.15 ? gp.axes[3] : 0;
 
+        const isAnyAction = btnA || btnB || btnX || btnY || dUp || dDown || dLeft || dRight || rtDown;
+
         if (rtDown && settingsMenu.style.display === 'block' && (rx !== 0 || ry !== 0)) {
             let curX = parseFloat(settingsMenu.style.left) || 0;
             let curY = parseFloat(settingsMenu.style.top) || 0;
@@ -370,8 +372,10 @@ const pollGamepad = () => {
             settingsMenu.style.top = `${newY}px`;
         }
 
-        if (btnA || btnB || btnX || btnY || dUp || dDown || dLeft || dRight || rtDown) {
+        if (isAnyAction) {
+            const wasHidden = container.classList.contains('hidden-ui');
             showUI();
+            
             if (!isGamepadMode) {
                 document.body.classList.add('gamepad-mode');
                 isGamepadMode = true;
@@ -379,6 +383,10 @@ const pollGamepad = () => {
             }
             if (document.activeElement && document.activeElement.tagName !== 'BODY' && !document.activeElement.classList.contains('gp-focus')) {
                 document.activeElement.classList.add('gp-focus');
+            }
+
+            if (wasHidden && (dUp || dDown || dLeft || dRight)) {
+                gpNavCooldown = Date.now() + 200;
             }
         }
 
@@ -573,7 +581,7 @@ adaptiveToggle.addEventListener('change', () => {
     localStorage.setItem('useAdaptiveColor', adaptiveToggle.checked);
     document.getElementById('color-row-native').classList.toggle('disabled-control', adaptiveToggle.checked);
     document.getElementById('color-row-gp').classList.toggle('disabled-control', adaptiveToggle.checked);
-    document.body.classList.toggle('adaptive-sync', adaptiveToggle.checked);
+    root.classList.toggle('adaptive-sync', adaptiveToggle.checked);
 });
 
 document.querySelectorAll('input[name="size-option"]').forEach(radio => {
@@ -667,7 +675,7 @@ const init = () => {
     adaptiveToggle.checked = localStorage.getItem('useAdaptiveColor') === 'true';
     document.getElementById('color-row-native').classList.toggle('disabled-control', adaptiveToggle.checked);
     document.getElementById('color-row-gp').classList.toggle('disabled-control', adaptiveToggle.checked);
-    document.body.classList.toggle('adaptive-sync', adaptiveToggle.checked);
+    root.classList.toggle('adaptive-sync', adaptiveToggle.checked);
 
     const activeRadio = document.querySelector(`input[value="${savedSize}"]`);
     if (activeRadio) activeRadio.checked = true;
@@ -683,6 +691,7 @@ const init = () => {
     updateRainbowOrbitState();
     updateClock();
     
+    document.getElementById('time').setAttribute('tabindex', '0');
     pollGamepad();
 
     document.body.classList.add('is-loaded');
