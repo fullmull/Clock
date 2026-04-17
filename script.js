@@ -80,10 +80,16 @@ function hexToHsl(H) {
 async function fetchImageBatch() {
     try {
         const orient = window.innerWidth > window.innerHeight ? 'horizontal' : 'vertical';
-        const response = await fetch(`/api/get-images?orientation=${orient}`);
+        const response = await fetch(`/api/get-images?orientation=${orient}&t=${Date.now()}`);
         if (!response.ok) throw new Error();
         const data = await response.json();
-        dynamicImageQueue = data.map(photo => photo.largeImageURL);
+        
+        let urls = data.map(photo => photo.largeImageURL);
+        for (let i = urls.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [urls[i], urls[j]] = [urls[j], urls[i]];
+        }
+        dynamicImageQueue = urls;
     } catch {
         dynamicImageQueue = [];
     }
