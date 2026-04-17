@@ -87,6 +87,10 @@ body:not(.is-loaded) #clock-container {
     padding: calc(clamp(1.5rem, 4vmin, 3rem) * var(--size-scale)) calc(clamp(1.5rem, 4vmin, 3rem) * var(--size-scale));
 }
 
+#clock-container.hidden-ui.stacked {
+    padding: calc(clamp(1.5rem, 4vmin, 3rem) * var(--size-scale)) calc(clamp(1rem, 2vmin, 1.5rem) * var(--size-scale));
+}
+
 #orbit-ring {
     position: absolute;
     inset: -1px;
@@ -242,39 +246,13 @@ body:not(.is-loaded) #clock-container {
     pointer-events: none;
 }
 
-.main-control-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5vmin 4vmin;
-    width: fit-content;
-    margin: 0 auto;
-    padding: calc(clamp(1rem, 3vmin, 2rem) * var(--size-scale)) calc(clamp(1.5rem, 4vmin, 3rem) * var(--size-scale));
-}
-.main-toggle-item {
-    display: flex;
-    align-items: center;
-}
-.text-left { justify-content: flex-start; }
-.text-left .control-label { margin-right: 1.5vmin; }
-.text-right { justify-content: flex-end; }
-.text-right .control-label { margin-left: 1.5vmin; }
-.control-label {
-    text-align: right;
-    color: var(--text-muted);
-    font-size: 0.7rem;
-    font-weight: bold;
-    min-width: 70px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-}
-.text-right .control-label { text-align: left; }
-
 .toggle-grid { 
     display: grid; 
-    grid-template-columns: minmax(min-content, 1fr) auto minmax(min-content, 1fr) minmax(min-content, 1fr) auto minmax(min-content, 1fr); 
-    gap: 12px 8px; 
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) minmax(0, 1fr) auto minmax(0, 1fr); 
+    gap: 12px 6px; 
     align-items: center; 
-    width: max-content; 
-    max-width: 100%; 
+    width: 100%; 
+    max-width: 400px; 
     padding: 6px 0; 
     margin: 0 auto;
 }
@@ -415,6 +393,9 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
     #clock-container.hidden-ui {
         padding: calc(1.5rem * var(--size-scale)) calc(1.5rem * var(--size-scale));
     }
+    #clock-container.hidden-ui.stacked {
+        padding: calc(1.5rem * var(--size-scale)) calc(1rem * var(--size-scale));
+    }
     #time {
         font-size: calc(var(--size-scale) * min(24vw, 22dvh));
     }
@@ -435,7 +416,7 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
         font-size: calc(var(--size-scale) * min(60vw, 20dvh));
     }
     .toggle-grid {
-        gap: 12px 6px;
+        gap: 12px 4px;
     }
     .label-left, .label-right {
         font-size: 0.65rem;
@@ -449,6 +430,9 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
     }
     #clock-container.hidden-ui {
         padding: calc(1rem * var(--size-scale)) calc(1.5rem * var(--size-scale));
+    }
+    #clock-container.hidden-ui.stacked {
+        padding: calc(1rem * var(--size-scale)) calc(1rem * var(--size-scale));
     }
     #time {
         font-size: calc(var(--size-scale) * min(20vw, 22dvh));
@@ -473,7 +457,6 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
     #fade-controls {
         margin-top: 10px;
     }
-    .main-control-grid { gap: 1vmin 3vmin; }
     .controls-divider {
         padding-top: 10px;
         margin-top: 10px;
@@ -578,6 +561,9 @@ body:not(.has-seconds) #slideshow-container.startup-anim {
 }
 body.adaptive-sync #time {
     transition: color 2.5s ease-in-out, text-shadow 2.5s ease-in-out, font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), margin 0.8s var(--ease-out), outline-color 2.5s ease-in-out, outline-offset 0.4s ease;
+}
+body.adaptive-sync .stacked-sec {
+    transition: all 0.5s var(--ease-out), color 2.5s ease-in-out;
 }
 body.adaptive-sync #orbit-ring {
     transition: background 2.5s ease-in-out;
