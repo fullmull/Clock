@@ -286,11 +286,11 @@ body:not(.is-loaded) #clock-container {
 
 .toggle-grid { 
     display: grid; 
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) minmax(0, 1fr) auto minmax(0, 1fr); 
-    gap: 12px 6px; 
+    grid-template-columns: minmax(45px, 1fr) auto minmax(min-content, 1fr) minmax(min-content, 1fr) auto minmax(45px, 1fr); 
+    gap: 12px 8px; 
     align-items: center; 
     width: 100%; 
-    max-width: 400px; 
+    max-width: 420px; 
     padding: 6px 0; 
     margin: 0 auto;
 }
@@ -454,7 +454,8 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
         font-size: calc(var(--size-scale) * min(60vw, 20dvh));
     }
     .toggle-grid {
-        gap: 12px 4px;
+        grid-template-columns: minmax(40px, 1fr) auto minmax(min-content, 1fr) minmax(min-content, 1fr) auto minmax(40px, 1fr);
+        gap: 12px 6px;
     }
     .label-left, .label-right {
         font-size: 0.65rem;
@@ -597,4 +598,13 @@ body:not(.has-seconds) #slideshow-container.startup-anim {
     pointer-events: none;
     filter: grayscale(100%);
     transition: var(--transition-main);
+}
+body.adaptive-sync #time {
+    transition: color 2.5s ease-in-out, text-shadow 2.5s ease-in-out, font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), margin 0.8s var(--ease-out), outline-color 0.4s ease, outline-offset 0.4s ease;
+}
+body.adaptive-sync .stacked-sec {
+    transition: all 0.5s var(--ease-out), color 2.5s ease-in-out;
+}
+body.adaptive-sync #orbit-ring {
+    transition: background 2.5s ease-in-out;
 }
