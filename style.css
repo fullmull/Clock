@@ -27,7 +27,9 @@
     --text-muted: #aaa;
     --border-color: rgba(0, 0, 0, 0.1);
 }
+
 * { box-sizing: border-box; }
+
 body {
     position: relative;
     font-family: 'Montserrat', sans-serif;
@@ -47,8 +49,10 @@ body {
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
+
 :focus { outline: none; }
 :focus-visible { outline: 2px solid var(--main-color); outline-offset: 0.25rem; border-radius: 0.5rem; }
+
 .gp-focus { outline: 2px solid var(--main-color) !important; outline-offset: 0.25rem; border-radius: 0.5rem; }
 
 input:focus-visible + .slider { box-shadow: 0 0 0 0.125rem var(--container-bg), 0 0 0 0.25rem var(--main-color); }
@@ -76,6 +80,7 @@ body:not(.is-loaded) #clock-container {
     opacity: 0 !important;
     visibility: hidden !important;
 }
+
 #clock-container {
     position: relative;
     display: flex;
@@ -119,14 +124,17 @@ body:not(.is-loaded) #clock-container {
     will-change: transform;
     transition: opacity 0.5s ease;
 }
+
 #clock-container.rainbow-orbit #orbit-ring {
     background: conic-gradient(from var(--angle), transparent 50%, #f00, #ff0, #0f0, #0ff, #00f, #8b00ff, transparent 100%);
 }
+
 @property --angle {
     syntax: '<angle>';
     initial-value: 0deg;
     inherits: false;
 }
+
 @keyframes rotateOrbit {
     to { --angle: 360deg; }
 }
@@ -152,9 +160,11 @@ body:not(.is-loaded) #clock-container {
     font-feature-settings: "tnum";
     white-space: nowrap;
 }
+
 #clock-container.has-seconds:not(.stacked) #time {
     font-size: calc(var(--size-scale) * min(13vw, 30dvh));
 }
+
 #clock-container.stacked #time {
     flex-direction: column;
     gap: 0.05em;
@@ -164,14 +174,17 @@ body:not(.is-loaded) #clock-container {
 #clock-container.hidden-ui #time {
     font-size: calc(var(--size-scale) * min(25vw, 35dvh));
 }
+
 #clock-container.hidden-ui.has-seconds:not(.stacked) #time {
     font-size: calc(var(--size-scale) * min(16vw, 35dvh));
 }
+
 #clock-container.hidden-ui.stacked #time {
     font-size: calc(var(--size-scale) * min(40vw, 24dvh));
 }
 
 #clock-container.stacked .colon { display: none; }
+
 #h, #m {
     margin: -0.02em 0;
     display: inline-block;
@@ -179,13 +192,21 @@ body:not(.is-loaded) #clock-container {
     text-align: center;
     transition: margin 0.5s var(--ease-out);
 }
+
 #clock-container.stacked #h,
 #clock-container.stacked #m {
     margin: 0;
     line-height: 0.85;
 }
 
-.colon { opacity: 0.3; transition: opacity 0.5s; font-weight: 300; margin: 0 0.05em; }
+.colon { 
+    opacity: 0.3; 
+    transition: opacity 0.5s; 
+    font-weight: 300; 
+    margin: 0 0.05em; 
+    display: inline-block; 
+    transform: translateY(-0.07em); 
+}
 
 .stacked-sec {
     font-size: 1em;
@@ -266,14 +287,17 @@ body:not(.is-loaded) #clock-container {
     margin: 0 auto;
     padding: calc(clamp(1rem, 3vmin, 2rem) * var(--size-scale)) calc(clamp(1.5rem, 4vmin, 3rem) * var(--size-scale));
 }
+
 .main-toggle-item {
     display: flex;
     align-items: center;
 }
+
 .text-left { justify-content: flex-start; }
 .text-left .control-label { margin-right: 1.5vmin; }
 .text-right { justify-content: flex-end; }
 .text-right .control-label { margin-left: 1.5vmin; }
+
 .control-label {
     text-align: right;
     color: var(--text-muted);
@@ -282,6 +306,7 @@ body:not(.is-loaded) #clock-container {
     min-width: 70px;
     text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
+
 .text-right .control-label { text-align: left; }
 
 .toggle-grid { 
@@ -294,10 +319,12 @@ body:not(.is-loaded) #clock-container {
     padding: 0.375rem 0; 
     margin: 0 auto;
 }
+
 .label-left { text-align: right; color: var(--text-muted); font-size: 0.7rem; font-weight: bold; white-space: nowrap; }
 .label-right { text-align: left; color: var(--text-muted); font-size: 0.7rem; font-weight: bold; white-space: nowrap; }
 
 .controls-divider { width: 100%; max-width: 17.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; padding-bottom: 0.625rem; margin-top: 1.25rem; display: flex; justify-content: center; }
+
 .size-selector { display: flex; gap: 0.75rem; padding: 0.375rem 0; }
 
 .size-circle { position: relative; cursor: pointer; transition: var(--transition-main); }
@@ -315,14 +342,18 @@ body:not(.is-loaded) #clock-container {
     font-size: 0.8rem; font-weight: bold; color: #555;
     transition: 0.3s;
 }
+
 [data-theme="light"] .checkmark { background-color: #ddd; color: #666; border-color: #ccc; }
+
 .size-circle input:checked ~ .checkmark {
     background-color: var(--main-color);
     border-color: #fff;
     color: #fff;
     text-shadow: 0 1px 4px rgba(0,0,0,0.6);
 }
+
 .size-circle input { position: absolute; opacity: 0; width: 100%; height: 100%; left: 0; top: 0; margin: 0; cursor: pointer; z-index: 2; }
+
 #clock-settings {
     position: fixed;
     width: 17.5rem;
@@ -333,16 +364,20 @@ body:not(.is-loaded) #clock-container {
     z-index: 1000;
     box-shadow: 0 2.5rem 6.25rem rgba(0,0,0,0.9);
 }
+
 [data-theme="light"] #clock-settings {
     background: #fff;
     border-color: #eee;
     box-shadow: 0 0.625rem 1.875rem rgba(0,0,0,0.1);
 }
+
 #settings-header {
     padding: 0.625rem; cursor: move; color: #333; text-align: center; font-size: 0.6rem; border-bottom: 1px solid #111; margin-bottom: 1.25rem; letter-spacing: 0.125rem;
     touch-action: none;
 }
+
 [data-theme="light"] #settings-header { color: #aaa; border-bottom-color: #eee; }
+
 .setting-row { display: flex; align-items: center; justify-content: space-between; margin: 0.9375rem 0; font-size: 0.85rem; color: #888;}
 [data-theme="light"] .setting-row { color: #444; }
 
@@ -351,6 +386,7 @@ body:not(.is-loaded) #clock-container {
     -webkit-appearance: none;
     border: none; width: 2.5rem; height: 2.5rem; background: transparent; cursor: pointer; padding: 0; outline: none;
 }
+
 #color-picker::-webkit-color-swatch { border: 2px solid #fff; border-radius: 50%; }
 
 .c-slider { appearance: none; -webkit-appearance: none; width: 100%; height: 0.5rem; border-radius: 0.25rem; outline: none; transition: box-shadow 0.2s; }
@@ -367,24 +403,30 @@ body:not(.is-loaded) #clock-container {
     font-size: 0.9rem;
     transition: filter 0.3s;
 }
+
 .switch { position: relative; width: 2.75rem; height: 1.375rem; }
 .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; left: 0; top: 0; margin: 0; cursor: pointer; z-index: 2; }
 .slider { position: absolute; inset: 0; background-color: #111; transition: .4s; border-radius: 1.25rem; border: 1px solid #222; }
 .slider:before { position: absolute; content: ""; height: 1rem; width: 1rem; left: 0.125rem; bottom: 0.125rem; background: #333; transition: .4s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+
 input:checked + .slider { background-color: var(--main-color); border-color: rgba(255,255,255,0.1); }
 input:checked + .slider:before { transform: translateX(1.375rem); background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+
 [data-theme="light"] .slider { background-color: #e0e0e0; border-color: #ccc; }
 [data-theme="light"] .slider:before { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+
 #format-toggle + .slider,
 #layout-toggle + .slider {
     background-color: var(--main-color);
     border-color: rgba(255,255,255,0.1);
 }
+
 #format-toggle + .slider:before,
 #layout-toggle + .slider:before {
     background: #fff;
     box-shadow: 0 1px 4px rgba(0,0,0,0.6);
 }
+
 #slideshow-container {
     position: fixed;
     inset: 0;
@@ -396,11 +438,13 @@ input:checked + .slider:before { transform: translateX(1.375rem); background: #f
     transition: opacity 3s ease-out, transform 3s ease-out, filter 3s ease-out;
     will-change: transform, opacity, filter;
 }
+
 #slideshow-container.revealed {
     opacity: 1;
     transform: scale(1) translateZ(0);
     filter: blur(0px);
 }
+
 .slide {
     position: absolute;
     inset: 0;
@@ -413,6 +457,7 @@ input:checked + .slider:before { transform: translateX(1.375rem); background: #f
     transform: translateZ(0);
     will-change: opacity;
 }
+
 #slideshow-overlay {
     position: fixed;
     inset: 0;
@@ -421,6 +466,7 @@ input:checked + .slider:before { transform: translateX(1.375rem); background: #f
     opacity: 0;
     transition: opacity 1.5s ease;
 }
+
 body.slideshow-active #slideshow-overlay { opacity: 1; }
 
 @media (max-width: 600px) {
@@ -600,12 +646,15 @@ body:not(.has-seconds) #slideshow-container.startup-anim {
     filter: grayscale(100%);
     transition: var(--transition-main);
 }
+
 body.adaptive-sync #time {
     transition: color 2.5s ease-in-out, text-shadow 2.5s ease-in-out, font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), margin 0.8s var(--ease-out), outline-color 2.5s ease-in-out, outline-offset 0.4s ease;
 }
+
 body.adaptive-sync .stacked-sec {
     transition: all 0.5s var(--ease-out), color 2.5s ease-in-out;
 }
+
 body.adaptive-sync #orbit-ring {
     transition: background 2.5s ease-in-out;
 }
@@ -613,9 +662,11 @@ body.adaptive-sync #orbit-ring {
 @media (min-width: 2000px) {
     html { font-size: 20px; }
 }
+
 @media (min-width: 3000px) {
     html { font-size: 26px; }
 }
+
 @media (min-width: 4000px) {
     html { font-size: 32px; }
 }
