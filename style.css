@@ -164,8 +164,7 @@ body:not(.is-loaded) #clock-container {
     transition: margin 0.5s var(--ease-out);
 }
 #clock-container.stacked #h,
-#clock-container.stacked #m,
-#clock-container.stacked .stacked-sec {
+#clock-container.stacked #m {
     margin: 0;
     line-height: 0.85;
 }
@@ -175,14 +174,14 @@ body:not(.is-loaded) #clock-container {
 .stacked-sec {
     font-size: 1em;
     font-weight: 800;
-    color: var(--main-color);
+    color: inherit;
     line-height: 0.85;
     display: flex;
     justify-content: center;
     min-width: 1.2em;
     text-align: center;
-    margin: -0.02em 0;
-    transition: all 0.5s var(--ease-out);
+    margin: 0;
+    transition: font-size 0.5s var(--ease-out), margin 0.5s var(--ease-out), opacity 0.5s var(--ease-out), min-width 0.5s var(--ease-out);
 }
 
 #s-wrap {
@@ -200,8 +199,8 @@ body:not(.is-loaded) #clock-container {
 }
 
 #clock-container.stacked #s-wrap {
-    margin: 0;
-    padding: 0.2em;
+    margin: -0.5em 0;
+    padding: 0.5em;
 }
 
 #clock-container:not(.has-seconds) #s-wrap {
@@ -268,7 +267,17 @@ body:not(.is-loaded) #clock-container {
     text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 .text-right .control-label { text-align: left; }
-.toggle-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px 6px; align-items: center; width: 100%; max-width: 380px; padding: 6px 0; }
+
+.toggle-grid { 
+    display: grid; 
+    grid-template-columns: minmax(min-content, 1fr) auto minmax(min-content, 1fr) minmax(min-content, 1fr) auto minmax(min-content, 1fr); 
+    gap: 12px 8px; 
+    align-items: center; 
+    width: max-content; 
+    max-width: 100%; 
+    padding: 6px 0; 
+    margin: 0 auto;
+}
 .label-left { text-align: right; color: var(--text-muted); font-size: 0.7rem; font-weight: bold; white-space: nowrap; }
 .label-right { text-align: left; color: var(--text-muted); font-size: 0.7rem; font-weight: bold; white-space: nowrap; }
 
@@ -425,6 +434,12 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
     #clock-container.hidden-ui.stacked #time {
         font-size: calc(var(--size-scale) * min(60vw, 20dvh));
     }
+    .toggle-grid {
+        gap: 12px 6px;
+    }
+    .label-left, .label-right {
+        font-size: 0.65rem;
+    }
 }
 
 @media (max-height: 500px) {
@@ -563,9 +578,6 @@ body:not(.has-seconds) #slideshow-container.startup-anim {
 }
 body.adaptive-sync #time {
     transition: color 2.5s ease-in-out, text-shadow 2.5s ease-in-out, font-size 0.8s var(--ease-out), gap 0.8s var(--ease-out), margin 0.8s var(--ease-out), outline-color 2.5s ease-in-out, outline-offset 0.4s ease;
-}
-body.adaptive-sync .stacked-sec {
-    transition: all 0.5s var(--ease-out), color 2.5s ease-in-out;
 }
 body.adaptive-sync #orbit-ring {
     transition: background 2.5s ease-in-out;
