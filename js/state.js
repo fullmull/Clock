@@ -1,0 +1,20 @@
+export const state = {
+    fadeTimer: null,
+    isDragging: false,
+    offsetX: 0,
+    offsetY: 0,
+    slideshowInterval: null,
+    isSlideshowActive: false,
+    activeLayer: 1,
+    dynamicImageQueue: [],
+    appStartTime: Date.now(),
+    slideshowRevealed: false,
+    gpNavCooldown: 0,
+    gpState: { a: false, b: false, x: false, y: false },
+    lastMenuFocus: document.getElementById('theme-toggle'),
+    lastMainFocus: document.getElementById('time'),
+    isGamepadMode: false,
+    lastSecond: new Date().getSeconds(),
+    rafId: null,
+    fallbackInterval: null
+};
