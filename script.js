@@ -369,7 +369,7 @@ const pollGamepad = () => {
                     document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
                     const target = (lastMenuFocus && lastMenuFocus.offsetParent !== null) ? lastMenuFocus : document.getElementById('theme-toggle');
                     target.focus();
-                    if(isGamepadMode) target.classList.add('gp-focus');
+                    if(isGamepadMode) t.classList.add('gp-focus');
                 }, 10);
             } else {
                 settingsMenu.style.display = 'none';
@@ -555,13 +555,27 @@ function updateClock() {
     const sStr = now.getSeconds().toString().padStart(2, '0');
     if(hElem.innerText !== hStr) hElem.innerText = hStr;
     if(mElem.innerText !== mStr) mElem.innerText = mStr;
-    let newHTML = "";
-    if (secondsToggle.checked) {
-        newHTML = layoutToggle.checked
-            ? `<div class="stacked-sec">${sStr}</div>`
-            : `<span class="colon">:</span>${sStr}`;
+    
+    const isStacked = layoutToggle.checked;
+    const showSec = secondsToggle.checked;
+    const struct = `${isStacked}-${showSec}`;
+    
+    if (sWrap.dataset.struct !== struct) {
+        if (showSec) {
+            sWrap.innerHTML = isStacked
+                ? `<div class="stacked-sec"></div>`
+                : `<span class="colon">:</span><span class="classic-sec"></span>`;
+        } else {
+            sWrap.innerHTML = "";
+        }
+        sWrap.dataset.struct = struct;
     }
-    if (sWrap.innerHTML !== newHTML) sWrap.innerHTML = newHTML;
+    
+    if (showSec) {
+        const secEl = isStacked ? sWrap.querySelector('.stacked-sec') : sWrap.querySelector('.classic-sec');
+        if (secEl && secEl.innerText !== sStr) secEl.innerText = sStr;
+    }
+    
     document.title = `${hStr}:${mStr} | Orbit Clock`;
     updateFavicon();
 }
