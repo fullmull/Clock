@@ -519,6 +519,7 @@ adaptiveToggle.addEventListener('change', () => {
     localStorage.setItem('useAdaptiveColor', adaptiveToggle.checked);
     document.getElementById('color-row-native').classList.toggle('disabled-control', adaptiveToggle.checked);
     document.getElementById('color-row-gp').classList.toggle('disabled-control', adaptiveToggle.checked);
+    document.body.classList.toggle('adaptive-sync', adaptiveToggle.checked);
 });
 document.querySelectorAll('input[name="size-option"]').forEach(radio => {
     radio.onchange = (e) => setClockSize(e.target.value);
@@ -586,6 +587,7 @@ const init = () => {
     adaptiveToggle.checked = localStorage.getItem('useAdaptiveColor') === 'true';
     document.getElementById('color-row-native').classList.toggle('disabled-control', adaptiveToggle.checked);
     document.getElementById('color-row-gp').classList.toggle('disabled-control', adaptiveToggle.checked);
+    document.body.classList.toggle('adaptive-sync', adaptiveToggle.checked);
 
     const activeRadio = document.querySelector(`input[value="${savedSize}"]`);
     if (activeRadio) activeRadio.checked = true;
