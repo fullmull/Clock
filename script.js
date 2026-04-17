@@ -18,17 +18,16 @@ const glowToggle = document.getElementById('glow-toggle');
 const layoutToggle = document.getElementById('layout-toggle');
 const themeToggle = document.getElementById('theme-toggle');
 const rainbowOrbitToggle = document.getElementById('rainbow-orbit-toggle');
+const adaptiveToggle = document.getElementById('adaptive-toggle');
 const slideshowToggle = document.getElementById('slideshow-toggle');
 const slideshowContainer = document.getElementById('slideshow-container');
 const slide1 = document.getElementById('slide-1');
 const slide2 = document.getElementById('slide-2');
 const favicon = document.getElementById('favicon');
 const canvas = document.createElement('canvas');
-
 canvas.width = 32;
 canvas.height = 32;
 const ctx = canvas.getContext('2d');
-
 let fadeTimer;
 let isDragging = false;
 let offsetX, offsetY;
@@ -43,7 +42,6 @@ let gpState = { a: false, b: false, x: false, y: false };
 let lastMenuFocus = document.getElementById('theme-toggle');
 let lastMainFocus = document.getElementById('time');
 let isGamepadMode = false;
-
 function hslToHex(h, s, l) {
     l /= 100;
     const a = s * Math.min(l, 1 - l) / 100;
@@ -54,7 +52,6 @@ function hslToHex(h, s, l) {
     };
     return `#${f(0)}${f(8)}${f(4)}`;
 }
-
 function hexToHsl(H) {
     let r = 0, g = 0, b = 0;
     if (H.length == 4) {
@@ -80,7 +77,6 @@ function hexToHsl(H) {
     l = +(l * 100).toFixed(1);
     return [h, s, l];
 }
-
 async function fetchImageBatch() {
     try {
         const orient = window.innerWidth > window.innerHeight ? 'horizontal' : 'vertical';
@@ -92,45 +88,36 @@ async function fetchImageBatch() {
         dynamicImageQueue = [];
     }
 }
-
 const updateColorFromGamepad = () => {
     const h = hueSlider.value;
     const s = satSlider.value;
     const l = litSlider.value;
     const hex = hslToHex(h, s, l);
-    
     colorPicker.value = hex;
     root.style.setProperty('--main-color', hex);
     localStorage.setItem('clockColor', hex);
-
     hueSlider.style.background = `linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)`;
     satSlider.style.background = `linear-gradient(to right, hsl(${h}, 0%, ${l}%), hsl(${h}, 100%, ${l}%))`;
     litSlider.style.background = `linear-gradient(to right, #000, hsl(${h}, ${s}%, 50%), #fff)`;
 };
-
 const updateColorFromNative = (e) => {
     const hex = e.target.value;
     const [h, s, l] = hexToHsl(hex);
-    
     hueSlider.value = h;
     satSlider.value = s;
     litSlider.value = l;
-    
     root.style.setProperty('--main-color', hex);
     localStorage.setItem('clockColor', hex);
-
     hueSlider.style.background = `linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)`;
     satSlider.style.background = `linear-gradient(to right, hsl(${h}, 0%, ${l}%), hsl(${h}, 100%, ${l}%))`;
     litSlider.style.background = `linear-gradient(to right, #000, hsl(${h}, ${s}%, 50%), #fff)`;
 };
-
 const applyGlow = (val) => {
     root.style.setProperty('--glow-blur', `${val}px`);
     localStorage.setItem('clockGlow', val);
     const percent = (val / 60) * 100;
     glowSlider.style.background = `linear-gradient(to right, var(--main-color) ${percent}%, #333 ${percent}%)`;
 };
-
 const setClockSize = (sizeValue) => {
     const scaleMap = {
         '4rem': 0.55,
@@ -142,15 +129,13 @@ const setClockSize = (sizeValue) => {
     root.style.setProperty('--size-scale', scale);
     localStorage.setItem('clockSize', sizeValue);
 };
-
 const updateGlowState = () => {
     container.classList.toggle('no-glow', !glowToggle.checked);
+    localStorage.setItem('useGlow', glowToggle.checked);
 };
-
 const updateRainbowOrbitState = () => {
     container.classList.toggle('rainbow-orbit', rainbowOrbitToggle.checked);
 };
-
 const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
         root.requestFullscreen().catch(() => {});
@@ -158,7 +143,6 @@ const toggleFullscreen = () => {
         document.exitFullscreen();
     }
 };
-
 const showUI = () => {
     container.classList.remove('hidden-ui');
     fadeControls.classList.remove('hidden-ui');
@@ -172,7 +156,6 @@ const showUI = () => {
         }
     }, 5000);
 };
-
 const openMenu = () => {
     settingsMenu.style.visibility = 'hidden';
     settingsMenu.style.display = 'block';
@@ -186,7 +169,6 @@ const openMenu = () => {
     settingsMenu.style.top = `${Math.max(0, Math.min(y, window.innerHeight - settingsMenu.offsetHeight))}px`;
     settingsMenu.style.visibility = 'visible';
 };
-
 header.onpointerdown = (e) => {
     isDragging = true;
     const rect = settingsMenu.getBoundingClientRect();
@@ -194,7 +176,6 @@ header.onpointerdown = (e) => {
     offsetY = e.clientY - rect.top;
     header.setPointerCapture(e.pointerId);
 };
-
 header.onpointermove = (e) => {
     if (!isDragging) return;
     let newX = Math.max(0, Math.min(e.clientX - offsetX, window.innerWidth - settingsMenu.offsetWidth));
@@ -202,12 +183,10 @@ header.onpointermove = (e) => {
     settingsMenu.style.left = `${newX}px`;
     settingsMenu.style.top = `${newY}px`;
 };
-
 header.onpointerup = (e) => {
     isDragging = false;
     header.releasePointerCapture(e.pointerId);
 };
-
 document.getElementById('time').onclick = (e) => {
     e.stopPropagation();
     if (settingsMenu.style.display !== 'block') {
@@ -223,7 +202,6 @@ document.getElementById('time').onclick = (e) => {
         settingsMenu.style.display = 'none';
     }
 };
-
 closeBtn.onclick = () => {
     settingsMenu.style.display = 'none';
     showUI();
@@ -232,7 +210,6 @@ closeBtn.onclick = () => {
     t.focus();
     if(isGamepadMode) t.classList.add('gp-focus');
 };
-
 window.addEventListener('resize', () => {
     if (settingsMenu.style.display === 'block') {
         const rect = settingsMenu.getBoundingClientRect();
@@ -242,7 +219,6 @@ window.addEventListener('resize', () => {
         settingsMenu.style.top = `${newY}px`;
     }
 });
-
 async function changeImage() {
     if (!isSlideshowActive) return;
     if (dynamicImageQueue.length === 0) {
@@ -253,23 +229,51 @@ async function changeImage() {
         slide2.style.opacity = 0;
         return;
     }
-    
     const nextImage = dynamicImageQueue.pop();
     const preloader = new Image();
+    preloader.crossOrigin = "Anonymous";
     preloader.src = nextImage;
-    
     try {
         await preloader.decode();
+        
+        if (adaptiveToggle.checked) {
+            const cvs = document.createElement('canvas');
+            const cCtx = cvs.getContext('2d');
+            cvs.width = 64;
+            cvs.height = 64;
+            cCtx.drawImage(preloader, 0, 0, 64, 64);
+            const data = cCtx.getImageData(0, 0, 64, 64).data;
+            let r=0, g=0, b=0, count=0;
+            for (let i = 0; i < data.length; i += 16) {
+                r += data[i]; g += data[i+1]; b += data[i+2]; count++;
+            }
+            r = Math.floor(r / count); g = Math.floor(g / count); b = Math.floor(b / count);
+            let rNorm = r/255, gNorm = g/255, bNorm = b/255;
+            let max = Math.max(rNorm, gNorm, bNorm), min = Math.min(rNorm, gNorm, bNorm);
+            let h=0, s=0, l = (max + min) / 2;
+            if (max !== min) {
+                let d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case rNorm: h = (gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0); break;
+                    case gNorm: h = (bNorm - rNorm) / d + 2; break;
+                    case bNorm: h = (rNorm - gNorm) / d + 4; break;
+                }
+                h /= 6;
+            }
+            hueSlider.value = Math.round(h * 360);
+            satSlider.value = Math.max(45, Math.round(s * 100));
+            litSlider.value = Math.max(70, Math.round(l * 100));
+            updateColorFromGamepad();
+        }
     } catch(e) {
         return changeImage();
     }
-    
     if (activeLayer === 1) {
         slide2.style.zIndex = 1;
         slide1.style.zIndex = 0;
         slide2.style.backgroundImage = `url('${nextImage}')`;
         slide2.style.opacity = 1;
-        
         setTimeout(() => {
             if (activeLayer === 2) slide1.style.opacity = 0;
         }, 2500);
@@ -279,25 +283,21 @@ async function changeImage() {
         slide2.style.zIndex = 0;
         slide1.style.backgroundImage = `url('${nextImage}')`;
         slide1.style.opacity = 1;
-        
         setTimeout(() => {
             if (activeLayer === 1) slide2.style.opacity = 0;
         }, 2500);
         activeLayer = 1;
     }
-
     if (!slideshowRevealed) {
         slideshowRevealed = true;
         const elapsed = Date.now() - appStartTime;
         const targetDelay = document.body.classList.contains('has-seconds') ? 3400 : 2600;
         const remainingDelay = Math.max(0, targetDelay - elapsed);
-        
         setTimeout(() => {
             slideshowContainer.classList.add('revealed');
         }, remainingDelay);
     }
 }
-
 function updateFavicon() {
     ctx.clearRect(0, 0, 32, 32);
     const color = getComputedStyle(root).getPropertyValue('--main-color').trim();
@@ -316,11 +316,9 @@ function updateFavicon() {
     ctx.stroke();
     favicon.href = canvas.toDataURL('image/png');
 }
-
 const pollGamepad = () => {
     const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
     const gp = gamepads.find(g => g !== null);
-
     if (gp) {
         const btnA = gp.buttons[0]?.pressed;
         const btnB = gp.buttons[1]?.pressed;
@@ -333,7 +331,6 @@ const pollGamepad = () => {
         const dRight = gp.buttons[15]?.pressed || gp.axes[0] > 0.5;
         const rx = Math.abs(gp.axes[2]) > 0.15 ? gp.axes[2] : 0;
         const ry = Math.abs(gp.axes[3]) > 0.15 ? gp.axes[3] : 0;
-
         if (rtDown && settingsMenu.style.display === 'block' && (rx !== 0 || ry !== 0)) {
             let curX = parseFloat(settingsMenu.style.left) || 0;
             let curY = parseFloat(settingsMenu.style.top) || 0;
@@ -342,7 +339,6 @@ const pollGamepad = () => {
             settingsMenu.style.left = `${newX}px`;
             settingsMenu.style.top = `${newY}px`;
         }
-
         if (btnA || btnB || btnX || btnY || dUp || dDown || dLeft || dRight || rtDown) {
             showUI();
             if (!isGamepadMode) {
@@ -354,14 +350,12 @@ const pollGamepad = () => {
                 document.activeElement.classList.add('gp-focus');
             }
         }
-
         if (btnX && !gpState.x) {
             toggleFullscreen();
             gpState.x = true;
         } else if (!btnX) {
             gpState.x = false;
         }
-
         if (btnY && !gpState.y) {
             if (settingsMenu.style.display !== 'block') {
                 openMenu();
@@ -383,7 +377,6 @@ const pollGamepad = () => {
         } else if (!btnY) {
             gpState.y = false;
         }
-
         if (btnB && !gpState.b) {
             if (settingsMenu.style.display === 'block') {
                 settingsMenu.style.display = 'none';
@@ -397,7 +390,6 @@ const pollGamepad = () => {
         } else if (!btnB) {
             gpState.b = false;
         }
-
         if (btnA && !gpState.a) {
             if (document.activeElement && document.activeElement.tagName !== 'BODY') {
                 document.activeElement.click();
@@ -406,19 +398,16 @@ const pollGamepad = () => {
         } else if (!btnA) {
             gpState.a = false;
         }
-
         if (Date.now() > gpNavCooldown && (dUp || dDown || dLeft || dRight)) {
             const isMenuOpen = settingsMenu.style.display === 'block';
             const focusables = Array.from(document.querySelectorAll('input, button, #time')).filter(el => {
-                if (el.getBoundingClientRect().width === 0) return false;
+                if (el.getBoundingClientRect().width === 0 || el.closest('.disabled-control')) return false;
                 const inMenu = settingsMenu.contains(el);
                 return isMenuOpen ? inMenu : !inMenu;
             });
-
             if (focusables.length > 0) {
                 const current = document.activeElement;
                 const isRange = current && current.type === 'range';
-                
                 if (isRange && (dLeft || dRight)) {
                      let step = (parseFloat(current.max) - parseFloat(current.min)) / 100;
                      step = Math.max(1, Math.round(step));
@@ -445,18 +434,15 @@ const pollGamepad = () => {
                         const c1 = { x: r1.left + r1.width / 2, y: r1.top + r1.height / 2 };
                         let best = null;
                         let bestDist = Infinity;
-
                         focusables.forEach(el => {
                             if (el === current) return;
                             const r2 = el.getBoundingClientRect();
                             const c2 = { x: r2.left + r2.width / 2, y: r2.top + r2.height / 2 };
-
                             let valid = false;
                             if (dUp && c2.y < c1.y - 5) valid = true;
                             if (dDown && c2.y > c1.y + 5) valid = true;
                             if (dLeft && c2.x < c1.x - 5) valid = true;
                             if (dRight && c2.x > c1.x + 5) valid = true;
-
                             if (valid) {
                                 const dx = Math.abs(c2.x - c1.x);
                                 const dy = Math.abs(c2.y - c1.y);
@@ -467,7 +453,6 @@ const pollGamepad = () => {
                                 }
                             }
                         });
-
                         if (best) {
                             document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
                             best.focus();
@@ -486,7 +471,6 @@ const pollGamepad = () => {
     }
     requestAnimationFrame(pollGamepad);
 };
-
 ['pointermove', 'pointerdown'].forEach(ev => document.addEventListener(ev, () => {
     showUI();
     if (isGamepadMode) {
@@ -498,11 +482,9 @@ const pollGamepad = () => {
     }
     document.querySelectorAll('.gp-focus').forEach(e => e.classList.remove('gp-focus'));
 }));
-
 slideshowToggle.addEventListener('change', async () => {
     isSlideshowActive = slideshowToggle.checked;
     localStorage.setItem('useSlideshow', isSlideshowActive);
-    
     if (isSlideshowActive) {
         document.body.classList.add('slideshow-active');
         if (dynamicImageQueue.length === 0) {
@@ -517,43 +499,35 @@ slideshowToggle.addEventListener('change', async () => {
         slide2.style.opacity = 0;
     }
 });
-
 themeToggle.onchange = () => {
     const theme = themeToggle.checked ? 'light' : 'dark';
     theme === 'light' ? root.setAttribute('data-theme', 'light') : root.removeAttribute('data-theme');
     localStorage.setItem('theme', theme);
 };
-
 [hueSlider, satSlider, litSlider].forEach(el => el.addEventListener('input', updateColorFromGamepad));
 colorPicker.addEventListener('input', updateColorFromNative);
-
 glowSlider.oninput = (e) => applyGlow(e.target.value);
-
 formatToggle.onchange = () => { localStorage.setItem('use24H', formatToggle.checked); updateClock(); };
 secondsToggle.onchange = () => { localStorage.setItem('showSec', secondsToggle.checked); updateClock(); };
 layoutToggle.onchange = () => { localStorage.setItem('isStacked', layoutToggle.checked); updateClock(); };
-
-glowToggle.onchange = () => {
-    localStorage.setItem('useGlow', glowToggle.checked);
-    updateGlowState();
-};
-
+glowToggle.onchange = updateGlowState;
 rainbowOrbitToggle.onchange = () => {
     localStorage.setItem('useRainbowOrbit', rainbowOrbitToggle.checked);
     updateRainbowOrbitState();
 };
-
+adaptiveToggle.addEventListener('change', () => {
+    localStorage.setItem('useAdaptiveColor', adaptiveToggle.checked);
+    document.getElementById('color-row-native').classList.toggle('disabled-control', adaptiveToggle.checked);
+    document.getElementById('color-row-gp').classList.toggle('disabled-control', adaptiveToggle.checked);
+});
 document.querySelectorAll('input[name="size-option"]').forEach(radio => {
     radio.onchange = (e) => setClockSize(e.target.value);
 });
-
 document.addEventListener('dblclick', toggleFullscreen);
-
 document.addEventListener('keydown', (e) => {
     showUI();
     if (e.key.toLowerCase() === 'f') toggleFullscreen();
 });
-
 document.addEventListener('pointerdown', (e) => {
     if (settingsMenu.style.display === 'block' &&
         !settingsMenu.contains(e.target) &&
@@ -562,22 +536,18 @@ document.addEventListener('pointerdown', (e) => {
         showUI();
     }
 });
-
 function updateClock() {
     const now = new Date();
     container.classList.toggle('stacked', layoutToggle.checked);
     container.classList.toggle('has-seconds', secondsToggle.checked);
     document.body.classList.toggle('has-seconds', secondsToggle.checked);
-    
     let h = now.getHours();
     if (!formatToggle.checked) h = h % 12 || 12;
     const hStr = h.toString().padStart(2, '0');
     const mStr = now.getMinutes().toString().padStart(2, '0');
     const sStr = now.getSeconds().toString().padStart(2, '0');
-
     if(hElem.innerText !== hStr) hElem.innerText = hStr;
     if(mElem.innerText !== mStr) mElem.innerText = mStr;
-
     let newHTML = "";
     if (secondsToggle.checked) {
         newHTML = layoutToggle.checked
@@ -585,80 +555,67 @@ function updateClock() {
             : `<span class="colon">:</span>${sStr}`;
     }
     if (sWrap.innerHTML !== newHTML) sWrap.innerHTML = newHTML;
-
     document.title = `${hStr}:${mStr} | Orbit Clock`;
     updateFavicon();
 }
-
 const init = () => {
     const savedColor = localStorage.getItem('clockColor') || '#2830cc';
     const savedGlow  = localStorage.getItem('clockGlow') || '15';
     const savedSize  = localStorage.getItem('clockSize') || '8rem';
     const savedTheme = localStorage.getItem('theme') || 'dark';
-
     colorPicker.value = savedColor;
     const [h, s, l] = hexToHsl(savedColor);
     hueSlider.value = h;
     satSlider.value = s;
     litSlider.value = l;
     updateColorFromGamepad();
-
     applyGlow(savedGlow);
     setClockSize(savedSize);
     glowSlider.value = savedGlow;
-
     if (savedTheme === 'light') {
         root.setAttribute('data-theme', 'light');
         themeToggle.checked = true;
     }
-
     formatToggle.checked = localStorage.getItem('use24H') === 'true';
     secondsToggle.checked = (localStorage.getItem('showSec') ?? 'true') === 'true';
     glowToggle.checked = (localStorage.getItem('useGlow') ?? 'true') === 'true';
     layoutToggle.checked = localStorage.getItem('isStacked') === 'true';
     rainbowOrbitToggle.checked = localStorage.getItem('useRainbowOrbit') === 'true';
     slideshowToggle.checked = localStorage.getItem('useSlideshow') === 'true';
+    
+    adaptiveToggle.checked = localStorage.getItem('useAdaptiveColor') === 'true';
+    document.getElementById('color-row-native').classList.toggle('disabled-control', adaptiveToggle.checked);
+    document.getElementById('color-row-gp').classList.toggle('disabled-control', adaptiveToggle.checked);
 
     const activeRadio = document.querySelector(`input[value="${savedSize}"]`);
     if (activeRadio) activeRadio.checked = true;
-
     if (slideshowToggle.checked) {
         isSlideshowActive = true;
         document.body.classList.add('slideshow-active');
         fetchImageBatch().then(() => changeImage());
         slideshowInterval = setInterval(changeImage, 20000);
     }
-
     updateGlowState();
     updateRainbowOrbitState();
     updateClock();
-    
-    document.getElementById('time').setAttribute('tabindex', '0');
     pollGamepad();
-
     document.body.classList.add('is-loaded');
-
     const colonElem = document.querySelector('.colon');
     const ringElem = document.getElementById('orbit-ring');
     const startupElements = [ringElem, hElem, colonElem, mElem, sWrap, fadeControls, slideshowContainer];
-    
     startupElements.forEach(el => {
         if(el) el.classList.add('startup-anim');
     });
-
     setTimeout(() => {
         startupElements.forEach(el => {
             if(el) el.classList.remove('startup-anim');
         });
     }, 6500);
-
     showUI();
 };
-
 let lastSecond = new Date().getSeconds();
 let rafId;
 let fallbackInterval;
-
 function tick() {
     const currentSecond = new Date().getSeconds();
     if (currentSecond !== lastSecond) {
@@ -667,7 +624,6 @@ function tick() {
     }
     rafId = requestAnimationFrame(tick);
 }
-
 function manageClockSync() {
     if (document.hidden) {
         cancelAnimationFrame(rafId);
@@ -678,8 +634,6 @@ function manageClockSync() {
         rafId = requestAnimationFrame(tick);
     }
 }
-
 document.addEventListener("visibilitychange", manageClockSync);
-
 init();
 manageClockSync();
