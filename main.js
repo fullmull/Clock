@@ -1,4 +1,4 @@
-import { root, timeElem, settingsMenu, header, closeBtn, colorPicker, hueSlider, satSlider, litSlider, glowSlider, formatToggle, secondsToggle, glowToggle, layoutToggle, themeToggle, rainbowOrbitToggle, adaptiveToggle, slideshowToggle, slideshowContainer, fadeControls, hElem, mElem, sWrap } from './js/elements.js';
+import { root, timeElem, settingsMenu, header, closeBtn, colorPicker, hueSlider, satSlider, litSlider, glowSlider, formatToggle, secondsToggle, glowToggle, layoutToggle, themeToggle, rainbowOrbitToggle, adaptiveToggle, slideshowToggle, slideshowContainer, fadeControls, hElem, mElem, sWrap, slide1, slide2 } from './js/elements.js';
 import { state } from './js/state.js';
 import { toggleFullscreen, hexToHsl } from './js/utils.js';
 import { updateColorFromGamepad, updateColorFromNative } from './js/color.js';
@@ -91,6 +91,17 @@ slideshowToggle.addEventListener('change', async () => {
         clearInterval(state.slideshowInterval);
         slide1.style.opacity = 0;
         slide2.style.opacity = 0;
+        slideshowContainer.classList.remove('revealed');
+        state.slideshowRevealed = false;
+        
+        if (adaptiveToggle.checked) {
+            const savedColor = localStorage.getItem('clockColor') || '#2830cc';
+            const [h, s, l] = hexToHsl(savedColor);
+            hueSlider.value = h;
+            satSlider.value = s;
+            litSlider.value = l;
+            updateColorFromGamepad();
+        }
     }
 });
 
@@ -118,6 +129,15 @@ adaptiveToggle.addEventListener('change', () => {
     document.getElementById('color-row-native').classList.toggle('disabled-control', adaptiveToggle.checked);
     document.getElementById('color-row-gp').classList.toggle('disabled-control', adaptiveToggle.checked);
     root.classList.toggle('adaptive-sync', adaptiveToggle.checked);
+
+    if (!adaptiveToggle.checked) {
+        const savedColor = localStorage.getItem('clockColor') || '#2830cc';
+        const [h, s, l] = hexToHsl(savedColor);
+        hueSlider.value = h;
+        satSlider.value = s;
+        litSlider.value = l;
+        updateColorFromGamepad();
+    }
 });
 
 document.querySelectorAll('input[name="size-option"]').forEach(radio => {
