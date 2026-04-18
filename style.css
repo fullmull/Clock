@@ -32,7 +32,7 @@
 
 body {
     position: relative;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Outfit', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -140,11 +140,11 @@ body:not(.is-loaded) #clock-container {
 }
 
 #time {
-    font-weight: 800;
+    font-weight: 900;
     color: var(--main-color);
     text-shadow: 0 0 var(--glow-blur) var(--main-color);
     font-size: calc(var(--size-scale) * min(20vw, 30dvh));
-    letter-spacing: -0.02em;
+    letter-spacing: 0.04em;
     z-index: 10;
     cursor: pointer;
     user-select: none;
@@ -186,7 +186,7 @@ body:not(.is-loaded) #clock-container {
 #clock-container.stacked .colon { display: none; }
 
 #h, #m {
-    margin: -0.02em 0;
+    margin: 0 0.04em;
     display: inline-block;
     min-width: 1.2em;
     text-align: center;
@@ -204,13 +204,13 @@ body:not(.is-loaded) #clock-container {
     transition: opacity 0.5s; 
     font-weight: 300; 
     margin: 0 0.05em; 
-    display: inline-block; 
-    transform: translateY(-0.07em); 
+    display: inline-block;
+    transform: translateY(-0.11em);
 }
 
 .stacked-sec {
     font-size: 1em;
-    font-weight: 800;
+    font-weight: 900;
     color: inherit;
     line-height: 0.85;
     display: flex;
@@ -398,8 +398,8 @@ body:not(.is-loaded) #clock-container {
     border: none; color: white;
     text-shadow: 0 1px 4px rgba(0,0,0,0.6);
     padding: 0.75rem; border-radius: 0.75rem;
-    margin-top: 0.9375rem; font-weight: 800;
-    cursor: pointer; font-family: 'Montserrat';
+    margin-top: 0.9375rem; font-weight: 900;
+    cursor: pointer; font-family: 'Outfit', sans-serif;
     font-size: 0.9rem;
     transition: filter 0.3s;
 }
@@ -602,6 +602,19 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
     }
 }
 
+@keyframes elegantRevealColon {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+        filter: blur(8px);
+    }
+    100% {
+        opacity: 0.3;
+        transform: translateY(-0.11em);
+        filter: blur(0px);
+    }
+}
+
 @keyframes bgReveal {
     0% {
         opacity: 0;
@@ -622,7 +635,8 @@ body.slideshow-active #slideshow-overlay { opacity: 1; }
 
 #orbit-ring.startup-anim { animation-delay: 0s; }
 #h.startup-anim { animation-delay: 0.6s; }
-.colon.startup-anim, #m.startup-anim { animation-delay: 1.2s; }
+.colon.startup-anim { animation: elegantRevealColon 2s var(--ease-out) both; animation-delay: 1.2s; }
+#m.startup-anim { animation-delay: 1.2s; }
 #s-wrap.startup-anim { animation-delay: 1.8s; }
 #fade-controls.startup-anim { animation-delay: 2.6s; }
 
